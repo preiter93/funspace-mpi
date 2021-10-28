@@ -1,0 +1,53 @@
+[package]
+name = "funspace"
+version = "0.2.3"
+authors = ["preiter"]
+edition = "2018"
+description = "N-dimensional function spaces and transforms"
+repository = "https://github.com/preiter93/funspace"
+keywords = ["scientific", "numerical", "fourier", "chebyshev", "ndarray"]
+readme = "README.md"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = "0.15"
+num-traits = "0.2.12"
+num-complex = "0.4"
+ndrustfft = "0.2"
+enum_dispatch = "0.3.7"
+rsmpi-decomp = {path = "rsmpi-decomp", version = "0.1", optional = true}
+
+[dev-dependencies]
+criterion = { version = "0.3", features = ["html_reports"] }
+
+[features]
+mpi = ["rsmpi-decomp"]
+mpi-derive = ["rsmpi-decomp/derive"]
+
+[lib]
+name = "funspace"
+path = "src/lib.rs"
+
+[[bench]]
+name = "benchmark_chebyshev"
+harness = false
+
+[[bench]]
+name = "benchmark_fourier"
+harness = false
+
+[[example]]
+name = "space_mpi"
+path = "examples/space_mpi.rs"
+required-features = ["mpi"]
+
+# [[bench]]
+# name = "benchmark_spacebase"
+# harness = false
+
+# Enable katex in documentation
+# RUSTDOCFLAGS="--html-in-header docs-header.html" cargo doc --no-deps --open
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "docs-header.html" ]
