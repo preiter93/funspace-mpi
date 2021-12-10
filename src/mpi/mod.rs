@@ -5,6 +5,7 @@ pub mod space2;
 pub mod space_traits;
 pub use decomp_handler::DecompHandler;
 pub use rsmpi_decomp::functions::broadcast_scalar;
+pub use rsmpi_decomp::functions::gather_sum;
 pub use rsmpi_decomp::mpi::environment::Universe;
 pub use rsmpi_decomp::mpi::initialize;
 pub use rsmpi_decomp::mpi::topology::Communicator;
