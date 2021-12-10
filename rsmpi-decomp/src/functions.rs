@@ -1,4 +1,5 @@
 //! Collection of simplified mpi routines
+use mpi::collective::CommunicatorCollectives;
 use mpi::collective::Root;
 use mpi::environment::Universe;
 use mpi::topology::Communicator;
@@ -30,4 +31,17 @@ pub fn gather_sum<T: Zero + Equivalence + Clone + Copy + std::iter::Sum>(
     } else {
         root_process.gather_into(data);
     }
+}
+
+/// Gather sum of values on all processes
+pub fn all_gather_sum<T: Zero + Equivalence + Clone + Copy + std::iter::Sum>(
+    universe: &Universe,
+    data: &T,
+    result: &mut T,
+) {
+    let world = universe.world();
+    let size = world.size() as usize;
+    let mut a = vec![T::zero(); size];
+    world.all_gather_into(data, &mut a[..]);
+    *result = a.iter().map(|x| *x).sum();
 }
