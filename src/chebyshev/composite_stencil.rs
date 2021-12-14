@@ -452,4 +452,17 @@ mod test {
         let parent = stencil.multiply_vec(&composite);
         approx_eq(&parent, &array![1.5, 0.5, 0., 0.]);
     }
+
+    #[test]
+    fn test_stench_cheb_boundary_neumann() {
+        let stencil = StencilChebyshevBoundary::<f64>::neumann(4);
+        let parent = Array::from_vec(vec![1., 2., 3., 4.]);
+        let composite = stencil.solve_vec(&parent);
+        approx_eq(&composite, &array![-7., 9.]);
+
+        let stencil = StencilChebyshevBoundary::<f64>::neumann(4);
+        let composite = Array::from_vec(vec![-7., 9.]);
+        let parent = stencil.multiply_vec(&composite);
+        approx_eq(&parent, &array![1., 2., 0., 0.]);
+    }
 }

@@ -677,4 +677,12 @@ mod test {
         cheby.differentiate_inplace(&mut diff, 1, 1);
         approx_eq(&diff, &expected);
     }
+
+    #[test]
+    fn test_chebyshev_transform_1() {
+        let mut cheby = Chebyshev::new(4);
+        let input = array![1., 2., 3., 4.];
+        let output = cheby.forward(&input, 0);
+        approx_eq(&output, &array![2.5, 1.33333333, 0., 0.16666667]);
+    }
 }

@@ -189,7 +189,7 @@
 //! `examples/space_mpi.rs`
 //!
 //! Install `cargo mpirun`, for example, and run
-//! ```
+//! ```ignore
 //! cargo mpirun --np 2 --example space_mpi --features="mpi"
 //! ```
 #![allow(clippy::just_underscores_and_digits)]

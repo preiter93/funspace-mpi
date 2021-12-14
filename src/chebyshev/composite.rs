@@ -694,4 +694,17 @@ mod test {
         let diff = cheby.differentiate(&data, 2, 1);
         approx_eq(&diff, &expected);
     }
+
+    #[test]
+    fn test_chebyshev_transform_2() {
+        let mut cheby = CompositeChebyshev::<f64>::neumann_bc(4);
+        let input = array![1., 2., 3., 4.];
+        let output = cheby.forward(&input, 0);
+        approx_eq(&output, &array![-2.83333333, 7.83333333]);
+        let input2 = cheby.backward(&output, 0);
+        approx_eq(
+            &input2,
+            &array![1.16666667, 1.83333333, 3.16666667, 3.83333333],
+        );
+    }
 }
