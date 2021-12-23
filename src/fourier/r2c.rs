@@ -57,17 +57,8 @@ impl<A: FloatNum> FourierR2c<A> {
     /// Return complex wavenumber vector for r2c transform (0, 1, 2, 3)
     #[allow(clippy::missing_panics_doc)]
     fn wavenumber(n: usize) -> Array1<Complex<A>> {
-        let n2 = n / 2 + 1;
-        let mut k: Array1<A> = Array1::zeros(n2);
-
-        for (i, ki) in Array1::range(0., n2 as f64, 1.)
-            .iter()
-            .zip(k.slice_mut(s![..n2]))
-        {
-            *ki = A::from_f64(*i as f64).unwrap();
-        }
-
-        k.mapv(|x| Complex::new(A::zero(), x))
+        let k = Array1::range(0., (n / 2 + 1) as f64, 1.);
+        k.mapv(|x| Complex::new(A::zero(), A::from_f64(x).unwrap()))
     }
 
     /// Differentiate 1d Array *n_times*

@@ -66,24 +66,21 @@ impl<A: FloatNum> FourierC2c<A> {
         Array1::range(0., 2. * PI, 2. * PI / n64).mapv(|elem| A::from_f64(elem).unwrap())
     }
 
-    /// Return complex wavenumber vector(0, 1, 2, 3, -2, -1)
+    /// Return complex wavenumber vector(0, 1, 2, -3, -2, -1)
     #[allow(clippy::missing_panics_doc)]
     fn wavenumber(n: usize) -> Array1<Complex<A>> {
-        let mut k: Array1<A> = Array1::zeros(n);
-        let n2 = (n - 1) / 2 + 1;
-        for (i, ki) in Array1::range(0., n2 as f64, 1.)
-            .iter()
-            .zip(k.slice_mut(s![..n2]))
-        {
-            *ki = A::from_f64(*i as f64).unwrap();
+        let mut k: Array1<f64> = Array1::zeros(n);
+        let n2 = if n % 2 == 0 { n / 2 } else { n / 2 + 1 };
+        k.slice_mut(s![..n2])
+            .assign(&Array1::range(0., n2 as f64, 1.));
+        if n % 2 == 0 {
+            k.slice_mut(s![n2..])
+                .assign(&(-1. * Array1::range(n2 as f64, 0., -1.)));
+        } else {
+            k.slice_mut(s![n2..])
+                .assign(&(-1. * Array1::range((n2 - 1) as f64, 0., -1.)));
         }
-        for (i, ki) in Array1::range(-1. * (n2 / 2 + 1) as f64, 0., 1.)
-            .iter()
-            .zip(k.slice_mut(s![n2..]))
-        {
-            *ki = A::from_f64(*i as f64).unwrap();
-        }
-        k.mapv(|x| Complex::new(A::zero(), x))
+        k.mapv(|x| Complex::new(A::zero(), A::from_f64(x).unwrap()))
     }
 
     /// Differentiate 1d Array *n_times*
