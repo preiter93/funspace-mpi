@@ -69,18 +69,15 @@ impl<A: FloatNum> FourierC2c<A> {
     /// Return complex wavenumber vector(0, 1, 2, -3, -2, -1)
     #[allow(clippy::missing_panics_doc)]
     fn wavenumber(n: usize) -> Array1<Complex<A>> {
-        let mut k: Array1<f64> = Array1::zeros(n);
-        let n2 = if n % 2 == 0 { n / 2 } else { n / 2 + 1 };
-        k.slice_mut(s![..n2])
-            .assign(&Array1::range(0., n2 as f64, 1.));
-        if n % 2 == 0 {
-            k.slice_mut(s![n2..])
-                .assign(&(-1. * Array1::range(n2 as f64, 0., -1.)));
-        } else {
-            k.slice_mut(s![n2..])
-                .assign(&(-1. * Array1::range((n2 - 1) as f64, 0., -1.)));
+        let n2 = (n - 1) / 2 + 1;
+        let mut k: Array1<Complex<A>> = Array1::zeros(n);
+        for (i, ki) in k.iter_mut().take(n2).enumerate() {
+            ki.im = A::from(i).unwrap();
         }
-        k.mapv(|x| Complex::new(A::zero(), A::from_f64(x).unwrap()))
+        for (i, ki) in k.iter_mut().rev().take(n / 2).enumerate() {
+            ki.im = A::from(-1. * (i + 1) as f64).unwrap();
+        }
+        k
     }
 
     /// Differentiate 1d Array *n_times*
