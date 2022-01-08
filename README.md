@@ -14,6 +14,7 @@ coefficients (spectral space).
 - `Chebyshev` (Orthogonal), see [`chebyshev()`]
 - `ChebDirichlet` (Composite), see [`cheb_dirichlet()`]
 - `ChebNeumann` (Composite), see [`cheb_neumann()`]
+- `ChebDirichletNeumann` (Composite), see [`cheb_dirichlet_neumann()`]
 - `FourierC2c` (Orthogonal), see [`fourier_c2c()`]
 - `FourierR2c` (Orthogonal), see [`fourier_r2c()`]
 

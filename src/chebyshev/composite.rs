@@ -68,6 +68,22 @@ impl<A: FloatNum> CompositeChebyshev<A> {
         }
     }
 
+    /// Return function space of chebyshev space
+    /// with *dirichlet* boundary conditions at *x=-1*
+    /// and *neumann* boundary conditions at *x=1*
+    #[must_use]
+    pub fn dirichlet_neumann(n: usize) -> Self {
+        use super::composite_stencil::StencilChebyshevDirchletNeumann;
+        let stencil = StencilChebyshevDirchletNeumann::new(n);
+        Self {
+            n,
+            m: StencilChebyshevDirchletNeumann::<A>::get_m(n),
+            stencil: ChebyshevStencil::StencilChebyshevDirchletNeumann(stencil),
+            ortho: Chebyshev::<A>::new(n),
+            transform_kind: TransformKind::RealToReal,
+        }
+    }
+
     /// Dirichlet boundary condition basis
     /// $$
     ///     \phi_0 = 0.5 T_0 - 0.5 T_1
@@ -88,25 +104,26 @@ impl<A: FloatNum> CompositeChebyshev<A> {
         }
     }
 
-    /// Neumann boundary condition basis
-    /// $$
-    ///     \phi_0 = 0.5T_0 - 1/8T_1
-    /// $$
-    /// $$
-    ///     \phi_1 = 0.5T_0 + 1/8T_1
-    /// $$
-    #[must_use]
-    pub fn neumann_bc(n: usize) -> Self {
-        use super::composite_stencil::StencilChebyshevBoundary;
-        let stencil = StencilChebyshevBoundary::neumann(n);
-        Self {
-            n,
-            m: StencilChebyshevBoundary::<A>::get_m(n),
-            stencil: ChebyshevStencil::StencilChebyshevBoundary(stencil),
-            ortho: Chebyshev::<A>::new(n),
-            transform_kind: TransformKind::RealToReal,
-        }
-    }
+    // TODO: FIX
+    // /// Neumann boundary condition basis
+    // /// $$
+    // ///     \phi_0 = 0.5T_0 - 1/8T_1
+    // /// $$
+    // /// $$
+    // ///     \phi_1 = 0.5T_0 + 1/8T_1
+    // /// $$
+    // #[must_use]
+    // pub fn neumann_bc(n: usize) -> Self {
+    //     use super::composite_stencil::StencilChebyshevBoundary;
+    //     let stencil = StencilChebyshevBoundary::neumann(n);
+    //     Self {
+    //         n,
+    //         m: StencilChebyshevBoundary::<A>::get_m(n),
+    //         stencil: ChebyshevStencil::StencilChebyshevBoundary(stencil),
+    //         ortho: Chebyshev::<A>::new(n),
+    //         transform_kind: TransformKind::RealToReal,
+    //     }
+    // }
 
     /// Return grid coordinates
     #[must_use]
@@ -139,8 +156,8 @@ macro_rules! impl_from_ortho_composite_chebyshev {
             ///     [-4., -5., -6., -7.],
             ///     [-8., -9., -10., -11.],
             /// ];
-            /// let parent_coeff = cd.to_ortho(&composite_coeff, 0);
-            /// approx_eq(&parent_coeff, &expected);
+            /// let orthonorm_coeff = cd.to_ortho(&composite_coeff, 0);
+            /// approx_eq(&orthonorm_coeff, &expected);
             /// ```
             fn to_ortho<S, D>(&self, input: &ArrayBase<S, D>, axis: usize) -> Array<$a, D>
             where
@@ -187,8 +204,8 @@ macro_rules! impl_from_ortho_composite_chebyshev {
             /// use funspace::utils::approx_eq;
             /// use funspace::FromOrtho;
             /// let (nx, ny) = (5, 4);
-            /// let mut parent_coeff = Array2::<f64>::zeros((nx, ny));
-            /// for (i, v) in parent_coeff.iter_mut().enumerate() {
+            /// let mut orthonorm_coeff = Array2::<f64>::zeros((nx, ny));
+            /// for (i, v) in orthonorm_coeff.iter_mut().enumerate() {
             ///     *v = i as f64;
             /// }
             /// let cd = CompositeChebyshev::<f64>::dirichlet(nx);
@@ -198,7 +215,7 @@ macro_rules! impl_from_ortho_composite_chebyshev {
             ///     [-4., -4., -4., -4.],
             ///     [-8., -8., -8., -8.],
             /// ];
-            /// let composite_coeff = cd.from_ortho(&parent_coeff, 0);
+            /// let composite_coeff = cd.from_ortho(&orthonorm_coeff, 0);
             /// approx_eq(&composite_coeff, &expected);
             /// ```
             fn from_ortho<S, D>(&self, input: &ArrayBase<S, D>, axis: usize) -> Array<$a, D>
@@ -373,8 +390,8 @@ impl<A: FloatNum> Transform for CompositeChebyshev<A> {
         S: ndarray::Data<Elem = Self::Physical>,
         D: Dimension,
     {
-        let parent_coeff = self.ortho.forward(input, axis);
-        self.from_ortho(&parent_coeff, axis)
+        let orthonorm_coeff = self.ortho.forward(input, axis);
+        self.from_ortho(&orthonorm_coeff, axis)
     }
 
     /// See [`CompositeChebyshev::forward`]
@@ -399,8 +416,8 @@ impl<A: FloatNum> Transform for CompositeChebyshev<A> {
         S2: ndarray::Data<Elem = Self::Spectral> + ndarray::DataMut,
         D: Dimension,
     {
-        let parent_coeff = self.ortho.forward(input, axis);
-        self.from_ortho_inplace(&parent_coeff, output, axis);
+        let orthonorm_coeff = self.ortho.forward(input, axis);
+        self.from_ortho_inplace(&orthonorm_coeff, output, axis);
     }
 
     /// # Example
@@ -420,8 +437,8 @@ impl<A: FloatNum> Transform for CompositeChebyshev<A> {
         S: ndarray::Data<Elem = Self::Spectral>,
         D: Dimension,
     {
-        let parent_coeff = self.to_ortho(input, axis);
-        self.ortho.backward(&parent_coeff, axis)
+        let orthonorm_coeff = self.to_ortho(input, axis);
+        self.ortho.backward(&orthonorm_coeff, axis)
     }
 
     /// See [`CompositeChebyshev::backward`]
@@ -446,8 +463,8 @@ impl<A: FloatNum> Transform for CompositeChebyshev<A> {
         S2: ndarray::Data<Elem = Self::Physical> + ndarray::DataMut,
         D: Dimension,
     {
-        let parent_coeff = self.to_ortho(input, axis);
-        self.ortho.backward_inplace(&parent_coeff, output, axis);
+        let orthonorm_coeff = self.to_ortho(input, axis);
+        self.ortho.backward_inplace(&orthonorm_coeff, output, axis);
     }
 }
 
@@ -465,8 +482,8 @@ impl<A: FloatNum> TransformPar for CompositeChebyshev<A> {
         S: ndarray::Data<Elem = Self::Physical>,
         D: Dimension,
     {
-        let parent_coeff = self.ortho.forward_par(input, axis);
-        self.from_ortho_par(&parent_coeff, axis)
+        let orthonorm_coeff = self.ortho.forward_par(input, axis);
+        self.from_ortho_par(&orthonorm_coeff, axis)
     }
 
     /// Parallel version. See [`CompositeChebyshev::forward_inplace`]
@@ -480,8 +497,8 @@ impl<A: FloatNum> TransformPar for CompositeChebyshev<A> {
         S2: ndarray::Data<Elem = Self::Spectral> + ndarray::DataMut,
         D: Dimension,
     {
-        let parent_coeff = self.ortho.forward_par(input, axis);
-        self.from_ortho_inplace_par(&parent_coeff, output, axis);
+        let orthonorm_coeff = self.ortho.forward_par(input, axis);
+        self.from_ortho_inplace_par(&orthonorm_coeff, output, axis);
     }
 
     /// Parallel version. See [`CompositeChebyshev::backward`]
@@ -494,8 +511,8 @@ impl<A: FloatNum> TransformPar for CompositeChebyshev<A> {
         S: ndarray::Data<Elem = Self::Spectral>,
         D: Dimension,
     {
-        let parent_coeff = self.to_ortho_par(input, axis);
-        self.ortho.backward_par(&parent_coeff, axis)
+        let orthonorm_coeff = self.to_ortho_par(input, axis);
+        self.ortho.backward_par(&orthonorm_coeff, axis)
     }
 
     /// Parallel version. See [`CompositeChebyshev::backward_inplace`]
@@ -509,8 +526,9 @@ impl<A: FloatNum> TransformPar for CompositeChebyshev<A> {
         S2: ndarray::Data<Elem = Self::Physical> + ndarray::DataMut,
         D: Dimension,
     {
-        let parent_coeff = self.to_ortho_par(input, axis);
-        self.ortho.backward_inplace_par(&parent_coeff, output, axis);
+        let orthonorm_coeff = self.to_ortho_par(input, axis);
+        self.ortho
+            .backward_inplace_par(&orthonorm_coeff, output, axis);
     }
 }
 
@@ -538,9 +556,9 @@ macro_rules! impl_differentiate_composite_chebyshev {
                 S: ndarray::Data<Elem = $a>,
                 D: Dimension,
             {
-                let mut parent_coeff = self.to_ortho(data, axis);
-                self.ortho.differentiate_inplace(&mut parent_coeff, n_times, axis);
-                parent_coeff
+                let mut orthonorm_coeff = self.to_ortho(data, axis);
+                self.ortho.differentiate_inplace(&mut orthonorm_coeff, n_times, axis);
+                orthonorm_coeff
             }
 
             #[allow(unused_variables)]
@@ -571,9 +589,9 @@ macro_rules! impl_differentiate_composite_chebyshev {
                 S: ndarray::Data<Elem = $a>,
                 D: Dimension,
             {
-                let mut parent_coeff = self.to_ortho_par(data, axis);
-                self.ortho.differentiate_inplace_par(&mut parent_coeff, n_times, axis);
-                parent_coeff
+                let mut orthonorm_coeff = self.to_ortho_par(data, axis);
+                self.ortho.differentiate_inplace_par(&mut orthonorm_coeff, n_times, axis);
+                orthonorm_coeff
             }
 
             #[allow(unused_variables)]
@@ -634,8 +652,8 @@ mod test {
             [-4., -5., -6., -7.],
             [-8., -9., -10., -11.],
         ];
-        let parent_coeff = cheby.to_ortho(&composite_coeff, 0);
-        approx_eq(&parent_coeff, &expected);
+        let orthonorm_coeff = cheby.to_ortho(&composite_coeff, 0);
+        approx_eq(&orthonorm_coeff, &expected);
 
         // Axis 1
         let mut composite_coeff = Array2::<f64>::zeros((nx, ny - 2));
@@ -650,8 +668,8 @@ mod test {
             [6., 7., -6., -7.],
             [8., 9., -8., -9.],
         ];
-        let parent_coeff = cheby.to_ortho(&composite_coeff, 1);
-        approx_eq(&parent_coeff, &expected);
+        let orthonorm_coeff = cheby.to_ortho(&composite_coeff, 1);
+        approx_eq(&orthonorm_coeff, &expected);
     }
 
     #[test]

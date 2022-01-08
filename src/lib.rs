@@ -12,6 +12,7 @@
 //! - `Chebyshev` (Orthogonal), see [`chebyshev()`]
 //! - `ChebDirichlet` (Composite), see [`cheb_dirichlet()`]
 //! - `ChebNeumann` (Composite), see [`cheb_neumann()`]
+//! - `ChebDirichletNeumann` (Composite), see [`cheb_dirichlet_neumann()`]
 //! - `FourierC2c` (Orthogonal), see [`fourier_c2c()`]
 //! - `FourierR2c` (Orthogonal), see [`fourier_r2c()`]
 //!
@@ -272,6 +273,13 @@ pub fn cheb_dirichlet<A: FloatNum>(n: usize) -> BaseR2r<A> {
     BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::dirichlet(n))
 }
 
+/// Function space with Dirichlet boundary conditions at x=-1
+/// and Neumann boundary conditions at x=1
+#[must_use]
+pub fn cheb_dirichlet_neumann<A: FloatNum>(n: usize) -> BaseR2r<A> {
+    BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::dirichlet_neumann(n))
+}
+
 /// Function space with Neumann boundary conditions
 ///
 /// $$
@@ -306,19 +314,20 @@ pub fn cheb_dirichlet_bc<A: FloatNum>(n: usize) -> BaseR2r<A> {
     BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::dirichlet_bc(n))
 }
 
-/// Functions space for inhomogeneous Neumann
-/// boundary conditions
-///
-/// $$
-///     \phi_0 = 0.5T_0 - 1/8T_1
-/// $$
-/// $$
-///     \phi_1 = 0.5T_0 + 1/8T_1
-/// $$
-#[must_use]
-pub fn cheb_neumann_bc<A: FloatNum>(n: usize) -> BaseR2r<A> {
-    BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::neumann_bc(n))
-}
+// TODO: FIX
+// /// Functions space for inhomogeneous Neumann
+// /// boundary conditions
+// ///
+// /// $$
+// ///     \phi_0 = 0.5T_0 - 1/8T_1
+// /// $$
+// /// $$
+// ///     \phi_1 = 0.5T_0 + 1/8T_1
+// /// $$
+// #[must_use]
+// pub fn cheb_neumann_bc<A: FloatNum>(n: usize) -> BaseR2r<A> {
+//     BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::neumann_bc(n))
+// }
 
 /// Function space for Fourier Polynomials
 ///
