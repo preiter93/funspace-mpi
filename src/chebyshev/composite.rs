@@ -40,6 +40,8 @@ pub struct CompositeChebyshev<A: FloatNum> {
     pub stencil: StencilChebyshev<A>,
     /// Transform kind (real-to-real)
     transform_kind: TransformKind,
+    /// Base key
+    key: String,
 }
 
 impl<A: FloatNum> CompositeChebyshev<A> {
@@ -59,6 +61,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             stencil: StencilChebyshev::StencilChebDirichlet(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
+            key: String::from("CHDD"),
         }
     }
 
@@ -78,6 +81,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             stencil: StencilChebyshev::StencilChebNeumann(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
+            key: String::from("CHNN"),
         }
     }
 
@@ -95,6 +99,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             stencil: StencilChebyshev::StencilChebDirichletNeumann(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
+            key: String::from("CHDN"),
         }
     }
 
@@ -114,6 +119,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             stencil: StencilChebyshev::StencilChebDirichletBc(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
+            key: String::from("CBDD"),
         }
     }
 
@@ -133,6 +139,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             stencil: StencilChebyshev::StencilChebNeumannBc(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
+            key: String::from("CBNN"),
         }
     }
 
@@ -377,6 +384,10 @@ impl<A: FloatNum> Basics<A> for CompositeChebyshev<A> {
     /// Return transform kind
     fn get_transform_kind(&self) -> &TransformKind {
         &self.transform_kind
+    }
+    /// Return key for base
+    fn get_key(&self) -> &str {
+        &self.key
     }
 }
 

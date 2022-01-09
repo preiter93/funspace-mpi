@@ -199,6 +199,7 @@
 #[macro_use]
 extern crate enum_dispatch;
 mod macros;
+
 pub mod chebyshev;
 pub mod enums;
 pub mod fourier;

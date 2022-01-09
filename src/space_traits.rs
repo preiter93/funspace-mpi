@@ -51,6 +51,9 @@ where
     /// Array of coordinates
     fn coords(&self) -> [Array1<A>; N];
 
+    /// Return base key
+    fn get_key(&self, axis: usize) -> &str;
+
     /// Shape of physical space
     fn shape_physical(&self) -> [usize; N];
 

@@ -122,6 +122,10 @@ impl<A: FloatNum> Basics<A> for FourierR2c<A> {
     fn get_transform_kind(&self) -> &TransformKind {
         &self.transform_kind
     }
+    /// Return key for base
+    fn get_key(&self) -> &str {
+        "FORC"
+    }
 }
 
 /// Copied from c2c

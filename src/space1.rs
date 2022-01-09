@@ -101,6 +101,10 @@ macro_rules! impl_space1 {
                 self.base0.coords().clone()
             }
 
+            fn get_key(&self, _axis: usize) -> &str {
+                self.base0.get_key()
+            }
+
             fn base_all(&self) -> [BaseAll<A>; 1] {
                 [BaseAll::<A>::from(self.base0.clone())]
             }

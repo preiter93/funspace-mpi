@@ -138,6 +138,10 @@ impl<A: FloatNum> Basics<A> for FourierC2c<A> {
     fn get_transform_kind(&self) -> &TransformKind {
         &self.transform_kind
     }
+    /// Return key for base
+    fn get_key(&self) -> &str {
+        "FOCC"
+    }
 }
 
 /// Perform differentiation in spectral space

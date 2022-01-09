@@ -216,6 +216,10 @@ impl<A: FloatNum> Basics<A> for Chebyshev<A> {
     fn get_transform_kind(&self) -> &TransformKind {
         &self.transform_kind
     }
+    /// Return key for base
+    fn get_key(&self) -> &str {
+        "CHEB"
+    }
 }
 
 impl<A: FloatNum> Transform for Chebyshev<A> {

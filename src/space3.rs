@@ -154,6 +154,16 @@ macro_rules! impl_space3 {
                 }
             }
 
+            fn get_key(&self, axis: usize) -> &str {
+                if axis == 0 {
+                    self.base0.get_key()
+                } else if axis == 1 {
+                    self.base1.get_key()
+                } else {
+                    self.base2.get_key()
+                }
+            }
+
             fn base_all(&self) -> [BaseAll<A>; 3] {
                 [
                     BaseAll::<A>::from(self.base0.clone()),

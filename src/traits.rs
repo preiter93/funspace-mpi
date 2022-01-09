@@ -16,6 +16,8 @@ pub trait Basics<T>: BaseSize {
     fn mass(&self) -> Array2<T>;
     /// Return kind of transform
     fn get_transform_kind(&self) -> &TransformKind;
+    /// Return base key
+    fn get_key(&self) -> &str;
 }
 
 #[enum_dispatch]
@@ -405,7 +407,7 @@ pub trait FromOrthoPar<T> {
 
 /// Define which number format the
 /// arrays have before and after
-/// a transform (Type in phyical space
+/// a transform (Type in physical space
 /// and type in spectral space)
 #[derive(Clone)]
 pub enum TransformKind {
