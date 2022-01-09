@@ -9,7 +9,6 @@
 //! See [`ortho::Chebyshev`]
 #![allow(clippy::module_name_repetitions)]
 mod composite;
-mod composite_stencil;
 mod dmsuite;
 mod linalg;
 mod ortho;

@@ -198,11 +198,10 @@
 #![allow(clippy::cast_precision_loss)]
 #[macro_use]
 extern crate enum_dispatch;
-mod macros;
-
 pub mod chebyshev;
 pub mod enums;
 pub mod fourier;
+mod macros;
 pub mod space1;
 pub mod space2;
 pub mod space3;
@@ -314,20 +313,19 @@ pub fn cheb_dirichlet_bc<A: FloatNum>(n: usize) -> BaseR2r<A> {
     BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::dirichlet_bc(n))
 }
 
-// TODO: FIX
-// /// Functions space for inhomogeneous Neumann
-// /// boundary conditions
-// ///
-// /// $$
-// ///     \phi_0 = 0.5T_0 - 1/8T_1
-// /// $$
-// /// $$
-// ///     \phi_1 = 0.5T_0 + 1/8T_1
-// /// $$
-// #[must_use]
-// pub fn cheb_neumann_bc<A: FloatNum>(n: usize) -> BaseR2r<A> {
-//     BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::neumann_bc(n))
-// }
+/// Functions space for inhomogeneous Neumann
+/// boundary conditions
+///
+/// $$
+///     \phi_0 = 0.5T_1 - 1/8T_2
+/// $$
+/// $$
+///     \phi_1 = 0.5T_1 + 1/8T_2
+/// $$
+#[must_use]
+pub fn cheb_neumann_bc<A: FloatNum>(n: usize) -> BaseR2r<A> {
+    BaseR2r::CompositeChebyshev(CompositeChebyshev::<A>::neumann_bc(n))
+}
 
 /// Function space for Fourier Polynomials
 ///

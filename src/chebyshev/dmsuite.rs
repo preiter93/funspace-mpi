@@ -1,6 +1,6 @@
 //! Additional differentaions routines for Chebyshev
 //! Polynomials
-//! They are not used inside `rustpde`, but good to have
+//! They are not used inside `funspace`, but good to have
 //! for testing
 use crate::types::FloatNum;
 use ndarray::{s, Array2};

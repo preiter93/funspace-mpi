@@ -1,5 +1,10 @@
 //! # Composite chebyshev spaces
-use super::composite_stencil::{ChebyshevStencil, Stencil};
+mod dirichlet;
+mod dirichlet_bc;
+mod dirichlet_neumann;
+mod neumann;
+mod neumann_bc;
+mod stencil;
 use super::ortho::Chebyshev;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
@@ -12,9 +17,15 @@ use crate::traits::Transform;
 use crate::traits::TransformKind;
 use crate::traits::TransformPar;
 use crate::types::FloatNum;
+use dirichlet::StencilChebDirichlet;
+use dirichlet_bc::StencilChebDirichletBc;
+use dirichlet_neumann::StencilChebDirichletNeumann;
 use ndarray::prelude::*;
 use ndarray::Zip;
+use neumann::StencilChebNeumann;
+use neumann_bc::StencilChebNeumannBc;
 use num_complex::Complex;
+use stencil::{Stencil, StencilChebyshev};
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Clone)]
@@ -26,7 +37,7 @@ pub struct CompositeChebyshev<A: FloatNum> {
     /// Parent base
     pub ortho: Chebyshev<A>,
     /// Transform stencil
-    pub stencil: ChebyshevStencil<A>,
+    pub stencil: StencilChebyshev<A>,
     /// Transform kind (real-to-real)
     transform_kind: TransformKind,
 }
@@ -37,14 +48,15 @@ impl<A: FloatNum> CompositeChebyshev<A> {
     /// $$
     ///  \phi_k = T_k - T_{k+2}
     /// $$
+    ///
+    /// Stencil has entries on diagonals 0, -2
     #[must_use]
     pub fn dirichlet(n: usize) -> Self {
-        use super::composite_stencil::StencilChebyshev;
-        let stencil = StencilChebyshev::dirichlet(n);
+        let stencil = StencilChebDirichlet::new(n);
         Self {
             n,
-            m: StencilChebyshev::<A>::get_m(n),
-            stencil: ChebyshevStencil::StencilChebyshev(stencil),
+            m: StencilChebDirichlet::<A>::get_m(n),
+            stencil: StencilChebyshev::StencilChebDirichlet(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
         }
@@ -55,14 +67,15 @@ impl<A: FloatNum> CompositeChebyshev<A> {
     /// $$
     /// \phi_k = T_k - k^{2} \/ (k+2)^2 T_{k+2}
     /// $$
+    ///
+    /// Stencil has entries on diagonals 0, -2
     #[must_use]
     pub fn neumann(n: usize) -> Self {
-        use super::composite_stencil::StencilChebyshev;
-        let stencil = StencilChebyshev::neumann(n);
+        let stencil = StencilChebNeumann::new(n);
         Self {
             n,
-            m: StencilChebyshev::<A>::get_m(n),
-            stencil: ChebyshevStencil::StencilChebyshev(stencil),
+            m: StencilChebNeumann::<A>::get_m(n),
+            stencil: StencilChebyshev::StencilChebNeumann(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
         }
@@ -71,14 +84,15 @@ impl<A: FloatNum> CompositeChebyshev<A> {
     /// Return function space of chebyshev space
     /// with *dirichlet* boundary conditions at *x=-1*
     /// and *neumann* boundary conditions at *x=1*
+    ///
+    /// Stencil has entries on diagonals 0, -1, -2
     #[must_use]
     pub fn dirichlet_neumann(n: usize) -> Self {
-        use super::composite_stencil::StencilChebyshevDirchletNeumann;
-        let stencil = StencilChebyshevDirchletNeumann::new(n);
+        let stencil = StencilChebDirichletNeumann::new(n);
         Self {
             n,
-            m: StencilChebyshevDirchletNeumann::<A>::get_m(n),
-            stencil: ChebyshevStencil::StencilChebyshevDirchletNeumann(stencil),
+            m: StencilChebDirichletNeumann::<A>::get_m(n),
+            stencil: StencilChebyshev::StencilChebDirichletNeumann(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
         }
@@ -93,37 +107,34 @@ impl<A: FloatNum> CompositeChebyshev<A> {
     /// $$
     #[must_use]
     pub fn dirichlet_bc(n: usize) -> Self {
-        use super::composite_stencil::StencilChebyshevBoundary;
-        let stencil = StencilChebyshevBoundary::dirichlet(n);
+        let stencil = StencilChebDirichletBc::new(n);
         Self {
             n,
-            m: StencilChebyshevBoundary::<A>::get_m(n),
-            stencil: ChebyshevStencil::StencilChebyshevBoundary(stencil),
+            m: StencilChebDirichletBc::<A>::get_m(n),
+            stencil: StencilChebyshev::StencilChebDirichletBc(stencil),
             ortho: Chebyshev::<A>::new(n),
             transform_kind: TransformKind::RealToReal,
         }
     }
 
-    // TODO: FIX
-    // /// Neumann boundary condition basis
-    // /// $$
-    // ///     \phi_0 = 0.5T_0 - 1/8T_1
-    // /// $$
-    // /// $$
-    // ///     \phi_1 = 0.5T_0 + 1/8T_1
-    // /// $$
-    // #[must_use]
-    // pub fn neumann_bc(n: usize) -> Self {
-    //     use super::composite_stencil::StencilChebyshevBoundary;
-    //     let stencil = StencilChebyshevBoundary::neumann(n);
-    //     Self {
-    //         n,
-    //         m: StencilChebyshevBoundary::<A>::get_m(n),
-    //         stencil: ChebyshevStencil::StencilChebyshevBoundary(stencil),
-    //         ortho: Chebyshev::<A>::new(n),
-    //         transform_kind: TransformKind::RealToReal,
-    //     }
-    // }
+    /// Neumann boundary condition basis
+    /// $$
+    ///     \phi_0 = 0.5T_1 - 1/8T_2
+    /// $$
+    /// $$
+    ///     \phi_1 = 0.5T_1 + 1/8T_2
+    /// $$
+    #[must_use]
+    pub fn neumann_bc(n: usize) -> Self {
+        let stencil = StencilChebNeumannBc::new(n);
+        Self {
+            n,
+            m: StencilChebNeumannBc::<A>::get_m(n),
+            stencil: StencilChebyshev::StencilChebNeumannBc(stencil),
+            ortho: Chebyshev::<A>::new(n),
+            transform_kind: TransformKind::RealToReal,
+        }
+    }
 
     /// Return grid coordinates
     #[must_use]
@@ -714,15 +725,25 @@ mod test {
     }
 
     #[test]
-    fn test_chebyshev_transform_2() {
-        let mut cheby = CompositeChebyshev::<f64>::neumann_bc(4);
-        let input = array![1., 2., 3., 4.];
-        let output = cheby.forward(&input, 0);
-        approx_eq(&output, &array![-2.83333333, 7.83333333]);
-        let input2 = cheby.backward(&output, 0);
-        approx_eq(
-            &input2,
-            &array![1.16666667, 1.83333333, 3.16666667, 3.83333333],
-        );
+    fn test_stencil_cheb_neumann_bc() {
+        let n = 50;
+        let mut cheby = CompositeChebyshev::<f64>::neumann_bc(n);
+
+        // Test backward transform
+        let composite = array![1., 2.];
+        let parent = cheby.backward(&composite, 0);
+        // Check derivative on the left, should be one
+        let deriv = (parent[1] - parent[0]) / (cheby.ortho.x[1] - cheby.ortho.x[0]);
+        if (deriv - 1.).abs() > 1e-3 {
+            panic!("Large difference of values, got {} expected {}.", deriv, 1.);
+        }
+        // Check derivative on the right, should be two
+        let n = parent.len();
+        let deriv = (parent[n - 1] - parent[n - 2]) / (cheby.ortho.x[n - 1] - cheby.ortho.x[n - 2]);
+        if (deriv - 2.).abs() > 1e-3 {
+            panic!("Large difference of values, got {} expected {}.", deriv, 2.);
+        }
+        // forward transform of parent should match original composite coefficients
+        approx_eq(&composite, &cheby.forward(&parent, 0));
     }
 }
