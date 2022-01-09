@@ -198,10 +198,10 @@
 #![allow(clippy::cast_precision_loss)]
 #[macro_use]
 extern crate enum_dispatch;
+mod macros;
 pub mod chebyshev;
 pub mod enums;
 pub mod fourier;
-mod macros;
 pub mod space1;
 pub mod space2;
 pub mod space3;
