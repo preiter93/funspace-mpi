@@ -1,0 +1,3 @@
+[submodule "mpi-decomp"]
+	path = mpi-decomp
+	url = https://github.com/preiter93/rsmpi-decomp.git

@@ -1,6 +1,6 @@
 #![cfg(feature = "mpi")]
 use super::Universe;
-use rsmpi_decomp::Decomp2d;
+use mpi_decomp::Decomp2d;
 use std::collections::HashMap;
 
 /// Organizes multiple domain decompositions to work with different

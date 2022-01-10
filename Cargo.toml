@@ -18,14 +18,14 @@ num-complex = "0.4"
 # ndrustfft = "0.2"
 ndrustfft = { git = "https://github.com/preiter93/ndrustfft", tag = "v0.2.2" }
 enum_dispatch = "0.3.7"
-rsmpi-decomp = {path = "rsmpi-decomp", version = "0.1", optional = true}
+mpi-decomp = {path = "mpi-decomp", version = "0.1.1", optional = true}
 
 [dev-dependencies]
 criterion = { version = "0.3", features = ["html_reports"] }
 
 [features]
-mpi = ["rsmpi-decomp"]
-mpi-derive = ["rsmpi-decomp/derive"]
+mpi = ["mpi-decomp"]
+mpi-derive = ["mpi-decomp/derive"]
 
 [lib]
 name = "funspace"
