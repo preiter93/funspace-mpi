@@ -1,5 +1,5 @@
 //! Common traits for space, independent of dimensionality
-use crate::BaseAll;
+use crate::enums::BaseKind;
 use crate::FloatNum;
 use ndarray::{prelude::*, Data, DataMut};
 
@@ -52,7 +52,7 @@ where
     fn coords(&self) -> [Array1<A>; N];
 
     /// Return base key
-    fn get_key(&self, axis: usize) -> &str;
+    fn base_kind(&self, axis: usize) -> BaseKind;
 
     /// Shape of physical space
     fn shape_physical(&self) -> [usize; N];
@@ -201,9 +201,6 @@ where
     ) -> Array<Self::Spectral, Dim<[usize; N]>>
     where
         S: Data<Elem = Self::Spectral>;
-
-    /// Return bases as array of enums
-    fn base_all(&self) -> [BaseAll<A>; N];
 
     /// Transform physical -> spectral space
     ///

@@ -1,4 +1,5 @@
 //! # Orthogonal chebyshev space
+use crate::enums::BaseKind;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
 use crate::traits::Differentiate;
@@ -7,7 +8,6 @@ use crate::traits::FromOrtho;
 use crate::traits::FromOrthoPar;
 use crate::traits::LaplacianInverse;
 use crate::traits::Transform;
-use crate::traits::TransformKind;
 use crate::traits::TransformPar;
 use crate::types::FloatNum;
 use crate::Scalar;
@@ -30,8 +30,6 @@ pub struct Chebyshev<A> {
     /// chebyshev transform
     correct_dct_forward: Array1<A>,
     correct_dct_backward: Array1<A>,
-    /// Transform kind (real-to-real)
-    transform_kind: TransformKind,
 }
 
 impl<A: FloatNum> Chebyshev<A> {
@@ -71,7 +69,6 @@ impl<A: FloatNum> Chebyshev<A> {
             dct_handler: DctHandler::new(n),
             correct_dct_forward,
             correct_dct_backward,
-            transform_kind: TransformKind::RealToReal,
         }
     }
 
@@ -213,12 +210,8 @@ impl<A: FloatNum> Basics<A> for Chebyshev<A> {
         Array2::<A>::eye(self.n)
     }
     /// Return transform kind
-    fn get_transform_kind(&self) -> &TransformKind {
-        &self.transform_kind
-    }
-    /// Return key for base
-    fn get_key(&self) -> &str {
-        "CHEB"
+    fn base_kind(&self) -> BaseKind {
+        BaseKind::Chebyshev
     }
 }
 

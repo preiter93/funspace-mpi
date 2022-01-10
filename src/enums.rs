@@ -19,18 +19,69 @@ use crate::types::FloatNum;
 use ndarray::prelude::*;
 use num_complex::Complex;
 
-#[allow(clippy::pub_enum_variant_names)]
-#[enum_dispatch(BaseSize, Basics<T>, LaplacianInverse<T>)]
-#[derive(Clone)]
-/// Enum of enums which binds all bases
-pub enum BaseAll<T: FloatNum> {
-    /// Real-to-real bases
-    BaseR2r(BaseR2r<T>),
-    /// Real-to-complex bases
-    BaseR2c(BaseR2c<T>),
-    /// Complex-to-complex bases
-    BaseC2c(BaseC2c<T>),
+// /// Define which number format the
+// /// arrays have before and after
+// /// a transform (Type in physical space
+// /// and type in spectral space)
+// #[derive(Clone)]
+// pub enum TransformKind {
+//     /// Real to real transform
+//     RealToReal,
+//     /// Complex to complex transform
+//     ComplexToComplex,
+//     /// Real to complex transform
+//     RealToComplex,
+// }
+
+//#[enum_dispatch(BaseSize, Basics<T>, LaplacianInverse<T>)]
+/// Enum with all available bases
+#[derive(Debug, Clone, Copy)]
+pub enum BaseKind {
+    /// Chebyshev orthogonal base
+    Chebyshev,
+    /// Chebyshev dirichlet base
+    ChebDirichlet,
+    /// Chebyshev neumann base
+    ChebNeumann,
+    /// Chebyshev dirichlet - neumann base
+    ChebDirichletNeumann,
+    /// Chebyshev dirichlet base (for boundary conditions)
+    ChebDirichletBc,
+    /// Chebyshev neumann base (for boundary conditions)
+    ChebNeumannBc,
+    /// Fourier real to complex
+    FourierR2c,
+    /// Fourier complex to complex
+    FourierC2c,
 }
+
+impl std::fmt::Display for BaseKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match *self {
+            BaseKind::Chebyshev => write!(f, "Chebyhev"),
+            BaseKind::ChebDirichlet => write!(f, "ChebDirichlet"),
+            BaseKind::ChebNeumann => write!(f, "ChebNeumann"),
+            BaseKind::ChebDirichletNeumann => write!(f, "ChebDirichletNeumann"),
+            BaseKind::ChebDirichletBc => write!(f, "ChebDirichletBc"),
+            BaseKind::ChebNeumannBc => write!(f, "ChebNeumannBc"),
+            BaseKind::FourierR2c => write!(f, "FourierR2c"),
+            BaseKind::FourierC2c => write!(f, "FourierC2c"),
+        }
+    }
+}
+
+// #[allow(clippy::pub_enum_variant_names)]
+// #[enum_dispatch(BaseSize, Basics<T>, LaplacianInverse<T>)]
+// #[derive(Clone)]
+// /// Enum of enums which binds all bases
+// pub enum BaseAll<T: FloatNum> {
+//     /// Real-to-real bases
+//     BaseR2r(BaseR2r<T>),
+//     /// Real-to-complex bases
+//     BaseR2c(BaseR2c<T>),
+//     /// Complex-to-complex bases
+//     BaseC2c(BaseC2c<T>),
+// }
 
 #[allow(clippy::large_enum_variant)]
 #[enum_dispatch(BaseSize, Basics<T>, LaplacianInverse<T>)]

@@ -1,5 +1,6 @@
 //! Collection of usefull traits for function spaces
-use crate::enums::{BaseAll, BaseC2c, BaseR2c, BaseR2r};
+use crate::enums::BaseKind;
+use crate::enums::{BaseC2c, BaseR2c, BaseR2r};
 use crate::Chebyshev;
 use crate::CompositeChebyshev;
 use crate::FloatNum;
@@ -7,17 +8,29 @@ use crate::FourierC2c;
 use crate::FourierR2c;
 use ndarray::prelude::*;
 
+// /// Master trait for all bases
+// pub trait BaseMasterTrait<T1, T2>:
+//     BaseSize
+//     + Basics<T1>
+//     + LaplacianInverse<T1>
+//     + Transform<Physical = T1, Spectral = T2>
+//     + TransformPar<Physical = T1, Spectral = T2>
+//     + Differentiate<T2>
+//     + DifferentiatePar<T2>
+//     + FromOrtho<T2>
+//     + FromOrthoPar<T2>
+// {
+// }
+
 /// Some basic  traits
 #[enum_dispatch]
-pub trait Basics<T>: BaseSize {
+pub trait Basics<T>: BaseSize + LaplacianInverse<T> {
     /// Coordinates in physical space
     fn coords(&self) -> &Array1<T>;
     /// Return mass matrix
     fn mass(&self) -> Array2<T>;
-    /// Return kind of transform
-    fn get_transform_kind(&self) -> &TransformKind;
-    /// Return base key
-    fn get_key(&self) -> &str;
+    /// Return kind of base
+    fn base_kind(&self) -> BaseKind;
 }
 
 #[enum_dispatch]
@@ -28,6 +41,22 @@ pub trait BaseSize {
     fn len_spec(&self) -> usize;
     /// Size of orthogonal space
     fn len_orth(&self) -> usize;
+}
+
+/// Define (Pseudo-) Inverse of Laplacian
+///
+/// These operators are usefull when solving
+/// second order equations
+#[enum_dispatch]
+pub trait LaplacianInverse<T> {
+    /// Laplacian $ L $
+    fn laplace(&self) -> Array2<T>;
+
+    /// Pseudoinverse mtrix of Laplacian $ L^{-1} $
+    fn laplace_inv(&self) -> Array2<T>;
+
+    /// Pseudoidentity matrix of laplacian $ L^{-1} L $
+    fn laplace_inv_eye(&self) -> Array2<T>;
 }
 
 /// Transform from physical to spectral space and vice versa.
@@ -265,22 +294,6 @@ pub trait DifferentiatePar<T> {
         D: Dimension;
 }
 
-/// Define (Pseudo-) Inverse of Laplacian
-///
-/// These operators are usefull when solving
-/// second order equations
-#[enum_dispatch]
-pub trait LaplacianInverse<T> {
-    /// Laplacian $ L $
-    fn laplace(&self) -> Array2<T>;
-
-    /// Pseudoinverse mtrix of Laplacian $ L^{-1} $
-    fn laplace_inv(&self) -> Array2<T>;
-
-    /// Pseudoidentity matrix of laplacian $ L^{-1} L $
-    fn laplace_inv_eye(&self) -> Array2<T>;
-}
-
 /// Define transformation from and to orthogonal space.
 ///
 /// If the space is already the orthogonal (parent)
@@ -403,30 +416,4 @@ pub trait FromOrthoPar<T> {
         S1: ndarray::Data<Elem = T>,
         S2: ndarray::Data<Elem = T> + ndarray::DataMut,
         D: Dimension;
-}
-
-/// Define which number format the
-/// arrays have before and after
-/// a transform (Type in physical space
-/// and type in spectral space)
-#[derive(Clone)]
-pub enum TransformKind {
-    /// Real to real transform
-    RealToReal,
-    /// Complex to complex transform
-    ComplexToComplex,
-    /// Real to complex transform
-    RealToComplex,
-}
-
-impl TransformKind {
-    /// Return name of enum as str
-    #[must_use]
-    pub fn name(&self) -> &str {
-        match *self {
-            Self::RealToReal => "RealToReal",
-            Self::ComplexToComplex => "ComplexToComplex",
-            Self::RealToComplex => "RealToComplex",
-        }
-    }
 }

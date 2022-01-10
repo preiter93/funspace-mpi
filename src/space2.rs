@@ -16,6 +16,7 @@
 //! println!("{:?}", v);
 //! ```
 #![allow(clippy::module_name_repetitions)]
+use crate::enums::BaseKind;
 use crate::space_traits::BaseSpace;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
@@ -26,7 +27,6 @@ use crate::traits::FromOrthoPar;
 use crate::traits::LaplacianInverse;
 use crate::traits::Transform;
 use crate::traits::TransformPar;
-use crate::BaseAll;
 use crate::{BaseC2c, BaseR2c, BaseR2r, FloatNum};
 use ndarray::{prelude::*, Data, DataMut, ScalarOperand};
 use num_complex::Complex;
@@ -127,19 +127,12 @@ macro_rules! impl_space2 {
                 }
             }
 
-            fn get_key(&self, axis: usize) -> &str {
+            fn base_kind(&self, axis: usize) -> BaseKind {
                 if axis == 0 {
-                    self.base0.get_key()
+                    self.base0.base_kind()
                 } else {
-                    self.base1.get_key()
+                    self.base1.base_kind()
                 }
-            }
-
-            fn base_all(&self) -> [BaseAll<A>; 2] {
-                [
-                    BaseAll::<A>::from(self.base0.clone()),
-                    BaseAll::<A>::from(self.base1.clone()),
-                ]
             }
 
             fn to_ortho<S>(

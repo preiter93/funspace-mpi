@@ -6,6 +6,7 @@ mod neumann;
 mod neumann_bc;
 mod stencil;
 use super::ortho::Chebyshev;
+use crate::enums::BaseKind;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
 use crate::traits::Differentiate;
@@ -14,7 +15,6 @@ use crate::traits::FromOrtho;
 use crate::traits::FromOrthoPar;
 use crate::traits::LaplacianInverse;
 use crate::traits::Transform;
-use crate::traits::TransformKind;
 use crate::traits::TransformPar;
 use crate::types::FloatNum;
 use dirichlet::StencilChebDirichlet;
@@ -38,10 +38,8 @@ pub struct CompositeChebyshev<A: FloatNum> {
     pub ortho: Chebyshev<A>,
     /// Transform stencil
     pub stencil: StencilChebyshev<A>,
-    /// Transform kind (real-to-real)
-    transform_kind: TransformKind,
-    /// Base key
-    key: String,
+    /// Kind of base
+    pub base_kind: BaseKind,
 }
 
 impl<A: FloatNum> CompositeChebyshev<A> {
@@ -60,8 +58,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             m: StencilChebDirichlet::<A>::get_m(n),
             stencil: StencilChebyshev::StencilChebDirichlet(stencil),
             ortho: Chebyshev::<A>::new(n),
-            transform_kind: TransformKind::RealToReal,
-            key: String::from("CHDD"),
+            base_kind: BaseKind::ChebDirichlet,
         }
     }
 
@@ -80,8 +77,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             m: StencilChebNeumann::<A>::get_m(n),
             stencil: StencilChebyshev::StencilChebNeumann(stencil),
             ortho: Chebyshev::<A>::new(n),
-            transform_kind: TransformKind::RealToReal,
-            key: String::from("CHNN"),
+            base_kind: BaseKind::ChebNeumann,
         }
     }
 
@@ -98,8 +94,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             m: StencilChebDirichletNeumann::<A>::get_m(n),
             stencil: StencilChebyshev::StencilChebDirichletNeumann(stencil),
             ortho: Chebyshev::<A>::new(n),
-            transform_kind: TransformKind::RealToReal,
-            key: String::from("CHDN"),
+            base_kind: BaseKind::ChebDirichletNeumann,
         }
     }
 
@@ -118,8 +113,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             m: StencilChebDirichletBc::<A>::get_m(n),
             stencil: StencilChebyshev::StencilChebDirichletBc(stencil),
             ortho: Chebyshev::<A>::new(n),
-            transform_kind: TransformKind::RealToReal,
-            key: String::from("CBDD"),
+            base_kind: BaseKind::ChebDirichletBc,
         }
     }
 
@@ -138,8 +132,7 @@ impl<A: FloatNum> CompositeChebyshev<A> {
             m: StencilChebNeumannBc::<A>::get_m(n),
             stencil: StencilChebyshev::StencilChebNeumannBc(stencil),
             ortho: Chebyshev::<A>::new(n),
-            transform_kind: TransformKind::RealToReal,
-            key: String::from("CBNN"),
+            base_kind: BaseKind::ChebNeumannBc,
         }
     }
 
@@ -382,12 +375,8 @@ impl<A: FloatNum> Basics<A> for CompositeChebyshev<A> {
         self.stencil.to_array()
     }
     /// Return transform kind
-    fn get_transform_kind(&self) -> &TransformKind {
-        &self.transform_kind
-    }
-    /// Return key for base
-    fn get_key(&self) -> &str {
-        &self.key
+    fn base_kind(&self) -> BaseKind {
+        self.base_kind
     }
 }
 

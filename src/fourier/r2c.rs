@@ -7,6 +7,7 @@
 //! ```
 #![allow(clippy::module_name_repetitions)]
 use super::FourierC2c;
+use crate::enums::BaseKind;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
 use crate::traits::Differentiate;
@@ -15,7 +16,6 @@ use crate::traits::FromOrtho;
 use crate::traits::FromOrthoPar;
 use crate::traits::LaplacianInverse;
 use crate::traits::Transform;
-use crate::traits::TransformKind;
 use crate::traits::TransformPar;
 use crate::types::FloatNum;
 use crate::types::Scalar;
@@ -36,8 +36,6 @@ pub struct FourierR2c<A> {
     pub k: Array1<Complex<A>>,
     /// Handles discrete cosine transform
     pub fft_handler: R2cFftHandler<A>,
-    /// Transform kind (real-to-complex)
-    transform_kind: TransformKind,
 }
 
 impl<A: FloatNum> FourierR2c<A> {
@@ -50,7 +48,6 @@ impl<A: FloatNum> FourierR2c<A> {
             x: FourierC2c::nodes(n),
             k: Self::wavenumber(n),
             fft_handler: R2cFftHandler::new(n),
-            transform_kind: TransformKind::RealToComplex,
         }
     }
 
@@ -119,12 +116,8 @@ impl<A: FloatNum> Basics<A> for FourierR2c<A> {
         Array2::<A>::eye(self.m)
     }
     /// Return transform kind
-    fn get_transform_kind(&self) -> &TransformKind {
-        &self.transform_kind
-    }
-    /// Return key for base
-    fn get_key(&self) -> &str {
-        "FORC"
+    fn base_kind(&self) -> BaseKind {
+        BaseKind::FourierR2c
     }
 }
 
