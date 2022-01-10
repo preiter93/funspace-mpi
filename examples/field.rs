@@ -146,58 +146,6 @@ where
 
         (mat_a, mat_b, precond, is_diag)
     }
-    // pub fn ingredients_for_hholtz(&self, axis: usize) -> (Array2<A>, Array2<A>, Option<Array2<A>>) {
-    //     let x = &self.space.base_all()[axis];
-    //     let mass = x.mass();
-    //     let lap = x.laplace();
-    //     let peye = x.laplace_inv_eye();
-    //     let pinv = peye.dot(&x.laplace_inv());
-    //
-    //     // Matrices
-    //     let (mat_a, mat_b) = match x {
-    //         BaseAll::BaseR2r(ref b) => match b {
-    //             BaseR2r::Chebyshev(_) => {
-    //                 let mass_sliced = mass.slice(s![.., 2..]);
-    //                 (pinv.dot(&mass_sliced), peye.dot(&mass_sliced))
-    //             }
-    //             BaseR2r::CompositeChebyshev(_) => (pinv.dot(&mass), peye.dot(&mass)),
-    //         },
-    //         BaseAll::BaseR2c(ref b) => match b {
-    //             BaseR2c::FourierR2c(_) => (mass, lap),
-    //         },
-    //         BaseAll::BaseC2c(ref b) => match b {
-    //             BaseC2c::FourierC2c(_) => (mass, lap),
-    //         },
-    //     };
-    //     // Preconditioner (optional)
-    //     let precond = match x {
-    //         BaseAll::BaseR2r(ref b) => match b {
-    //             BaseR2r::Chebyshev(_) | BaseR2r::CompositeChebyshev(_) => Some(pinv),
-    //         },
-    //         BaseAll::BaseR2c(_) | BaseAll::BaseC2c(_) => None,
-    //     };
-    //     (mat_a, mat_b, precond)
-    // }
-    //
-    // pub fn ingredients_for_poisson(
-    //     &self,
-    //     axis: usize,
-    // ) -> (Array2<A>, Array2<A>, Option<Array2<A>>, bool) {
-    //     let x = &self.space.base_all()[axis];
-    //
-    //     // Matrices and preconditioner
-    //     let (mat_a, mat_b, precond) = self.ingredients_for_hholtz(axis);
-    //
-    //     // Boolean, if laplacian is already diagonal
-    //     // if not, a eigendecomposition will diagonalize mat a,
-    //     // however, this is more expense.
-    //     let is_diag = match x {
-    //         BaseAll::BaseR2r(_) => false,
-    //         BaseAll::BaseR2c(_) | BaseAll::BaseC2c(_) => true,
-    //     };
-    //
-    //     (mat_a, mat_b, precond, is_diag)
-    // }
 }
 
 fn main() {
