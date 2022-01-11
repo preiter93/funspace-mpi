@@ -20,6 +20,7 @@ pub struct DecompHandler<'a> {
 impl<'a> DecompHandler<'a> {
     /// Initialize multidecomp with empty decomp hashmap.
     /// Use 'Self::insert' to add decompositions.
+    #[must_use]
     pub fn new(universe: &'a Universe) -> Self {
         let decomp: HashMap<usize, Decomp2d<'a>> = HashMap::new();
         let map_shape_global: HashMap<[usize; 2], usize> = HashMap::new();
@@ -34,24 +35,20 @@ impl<'a> DecompHandler<'a> {
     /// # Panics
     /// Decomposition must have a unique domain shape.
     pub fn insert(&mut self, decomp: Decomp2d<'a>) {
-        // get shapes
         let shape_global = decomp.get_global_shape();
-        if self.map_shape_global.contains_key(&shape_global) {
-            println!(
-                "Decomposition with global shape {:?} already known to SpaceDecomp. Skip.",
-                shape_global
-            );
-        } else {
+        self.map_shape_global.entry(shape_global).or_insert({
             let lookup_val = self.decomp.keys().len();
             self.decomp.insert(lookup_val, decomp);
-            // map lookup value to relevant array shapes,
-            // so that we can later lookup a decomposition by
-            // its shape
-            self.map_shape_global.insert(shape_global, lookup_val);
-        }
+            lookup_val
+        });
     }
 
     /// Return decomposition which matches a given global arrays shape.
+    ///
+    /// # Panics
+    /// Shape must be known to DecompHandler`. If not, create a new "Decomp2D" instance
+    /// and insert in `DecompHandler`.
+    #[must_use]
     pub fn get_decomp_from_global_shape(&self, shape: &[usize]) -> &Decomp2d {
         let lookup_val = self.map_shape_global.get(shape).unwrap();
         self.decomp.get(lookup_val).unwrap()

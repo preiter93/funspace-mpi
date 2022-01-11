@@ -456,22 +456,27 @@ macro_rules! impl_space2_mpi {
             where
                 S: Data<Elem = Self::Spectral>,
             {
-                // axis 0
-                let buffer = self.base0.to_ortho(input, 0);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_orth(), self.base1.len_spec()]);
-                let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
-                dcp.transpose_x_to_y(&buffer, &mut buffer_ypen);
-
-                // axis 1
-                let buffer = self.base1.to_ortho(&buffer_ypen, 1);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_orth(), self.base1.len_orth()]);
-                let mut buffer_xpen = Array2::zeros(dcp.x_pencil.sz);
+                // composite base coefficients -> orthogonal base coefficients
+                let work = {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_orth(),
+                        self.base1.len_spec(),
+                    ]);
+                    let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
+                    dcp.transpose_x_to_y(&self.base0.to_ortho(input, 0), &mut buffer_ypen);
+                    self.base1.to_ortho(&buffer_ypen, 1)
+                };
 
                 // transform back to x pencil
-                dcp.transpose_y_to_x(&buffer, &mut buffer_xpen);
-                buffer_xpen
+                {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_orth(),
+                        self.base1.len_orth(),
+                    ]);
+                    let mut buffer_xpen = Array2::zeros(dcp.x_pencil.sz);
+                    dcp.transpose_y_to_x(&work, &mut buffer_xpen);
+                    buffer_xpen
+                }
             }
 
             fn to_ortho_inplace_mpi<S1, S2>(
@@ -482,20 +487,25 @@ macro_rules! impl_space2_mpi {
                 S1: Data<Elem = Self::Spectral>,
                 S2: Data<Elem = Self::Spectral> + DataMut,
             {
-                // axis 0
-                let buffer = self.base0.to_ortho(input, 0);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_orth(), self.base1.len_spec()]);
-                let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
-                dcp.transpose_x_to_y(&buffer, &mut buffer_ypen);
-
-                // axis 1
-                let buffer = self.base1.to_ortho(&buffer_ypen, 1);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_orth(), self.base1.len_orth()]);
+                // composite base coefficients -> orthogonal base coefficients
+                let work = {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_orth(),
+                        self.base1.len_spec(),
+                    ]);
+                    let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
+                    dcp.transpose_x_to_y(&self.base0.to_ortho(input, 0), &mut buffer_ypen);
+                    self.base1.to_ortho(&buffer_ypen, 1)
+                };
 
                 // transform back to x pencil
-                dcp.transpose_y_to_x(&buffer, output);
+                {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_orth(),
+                        self.base1.len_orth(),
+                    ]);
+                    dcp.transpose_y_to_x(&work, output);
+                }
             }
 
             fn from_ortho_mpi<S>(
@@ -505,22 +515,27 @@ macro_rules! impl_space2_mpi {
             where
                 S: Data<Elem = Self::Spectral>,
             {
-                // axis 0
-                let buffer = self.base0.from_ortho(input, 0);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_spec(), self.base1.len_orth()]);
-                let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
-                dcp.transpose_x_to_y(&buffer, &mut buffer_ypen);
-
-                // axis 1
-                let buffer = self.base1.from_ortho(&buffer_ypen, 1);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_spec(), self.base1.len_spec()]);
-                let mut buffer_xpen = Array2::zeros(dcp.x_pencil.sz);
+                // orthogonal base coefficients -> composite base coefficients
+                let work = {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_spec(),
+                        self.base1.len_orth(),
+                    ]);
+                    let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
+                    dcp.transpose_x_to_y(&self.base0.from_ortho(input, 0), &mut buffer_ypen);
+                    self.base1.from_ortho(&buffer_ypen, 1)
+                };
 
                 // transform back to x pencil
-                dcp.transpose_y_to_x(&buffer, &mut buffer_xpen);
-                buffer_xpen
+                {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_spec(),
+                        self.base1.len_spec(),
+                    ]);
+                    let mut buffer_xpen = Array2::zeros(dcp.x_pencil.sz);
+                    dcp.transpose_y_to_x(&work, &mut buffer_xpen);
+                    buffer_xpen
+                }
             }
 
             fn from_ortho_inplace_mpi<S1, S2>(
@@ -531,20 +546,25 @@ macro_rules! impl_space2_mpi {
                 S1: Data<Elem = Self::Spectral>,
                 S2: Data<Elem = Self::Spectral> + DataMut,
             {
-                // axis 0
-                let buffer = self.base0.from_ortho(input, 0);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_spec(), self.base1.len_orth()]);
-                let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
-                dcp.transpose_x_to_y(&buffer, &mut buffer_ypen);
-
-                // axis 1
-                let buffer = self.base1.from_ortho(&buffer_ypen, 1);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_spec(), self.base1.len_spec()]);
+                // orthogonal base coefficients -> composite base coefficients
+                let work = {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_spec(),
+                        self.base1.len_orth(),
+                    ]);
+                    let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
+                    dcp.transpose_x_to_y(&self.base0.from_ortho(input, 0), &mut buffer_ypen);
+                    self.base1.from_ortho(&buffer_ypen, 1)
+                };
 
                 // transform back to x pencil
-                dcp.transpose_y_to_x(&buffer, output);
+                {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_spec(),
+                        self.base1.len_spec(),
+                    ]);
+                    dcp.transpose_y_to_x(&work, output);
+                }
             }
 
             fn gradient_mpi<S>(
@@ -556,29 +576,37 @@ macro_rules! impl_space2_mpi {
             where
                 S: Data<Elem = Self::Spectral>,
             {
-                // axis 0
-                let buffer = self.base0.differentiate(input, deriv[0], 0);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_orth(), self.base1.len_spec()]);
-                let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
-                dcp.transpose_x_to_y(&buffer, &mut buffer_ypen);
-
-                // axis 1
-                let buffer = self.base1.differentiate(&buffer_ypen, deriv[1], 1);
-                let dcp = self
-                    .get_decomp_from_global_shape(&[self.base0.len_orth(), self.base1.len_orth()]);
-                let mut output = Array2::zeros(dcp.x_pencil.sz);
+                // differentiate
+                let work = {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_orth(),
+                        self.base1.len_spec(),
+                    ]);
+                    let mut buffer_ypen = Array2::zeros(dcp.y_pencil.sz);
+                    dcp.transpose_x_to_y(
+                        &self.base0.differentiate(input, deriv[0], 0),
+                        &mut buffer_ypen,
+                    );
+                    self.base1.differentiate(&buffer_ypen, deriv[1], 1)
+                };
 
                 // transform back to x pencil
-                dcp.transpose_y_to_x(&buffer, &mut output);
+                {
+                    let dcp = self.get_decomp_from_global_shape(&[
+                        self.base0.len_orth(),
+                        self.base1.len_orth(),
+                    ]);
+                    let mut output = Array2::zeros(dcp.x_pencil.sz);
+                    dcp.transpose_y_to_x(&work, &mut output);
 
-                // rescale (necessary if domain length is normalized)
-                if let Some(s) = scale {
-                    let sc: Self::Spectral =
-                        (s[0].powi(deriv[0] as i32) * s[1].powi(deriv[1] as i32)).into();
-                    output = output / sc;
+                    // rescale (optional)
+                    if let Some(s) = scale {
+                        let sc: Self::Spectral =
+                            (s[0].powi(deriv[0] as i32) * s[1].powi(deriv[1] as i32)).into();
+                        output = output / sc;
+                    }
+                    output
                 }
-                output
             }
 
             fn forward_mpi<S>(
