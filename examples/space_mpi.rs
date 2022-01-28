@@ -18,25 +18,33 @@ fn main() {
     // let data = space.ndarray_spectral_x_pen();
     // let _ = space.to_ortho_mpi(&data);
 
-    let mut global = space.ndarray_physical();
-    for (i, v) in global.iter_mut().enumerate() {
-        *v = i as f64;
+    // Scatter data from too to all processor
+    let mut y_pencil = space.ndarray_physical_y_pen();
+    if space.get_nrank() == 0 {
+        let mut global = space.ndarray_physical();
+        for (i, v) in global.iter_mut().enumerate() {
+            *v = i as f64;
+        }
+        space.scatter_to_y_pencil_phys_root(&global, &mut y_pencil);
+    } else {
+        space.scatter_to_y_pencil_phys(&mut y_pencil);
     }
 
-    // Mpi supported
-    let mut y_pencil = space.ndarray_physical_y_pen();
-    space.scatter_to_y_pencil_phys(&global, &mut y_pencil);
     // transform to spectral space
     let mut x_pencil = space.ndarray_spectral_x_pen();
     space.forward_inplace_mpi(&y_pencil, &mut x_pencil);
     // transform to physical space
     space.backward_inplace_mpi(&x_pencil, &mut y_pencil);
-    // collect
+
+    // collect data on all processors (expensive)
     let mut v_mpi = space.ndarray_physical();
     space.all_gather_from_y_pencil_phys(&y_pencil, &mut v_mpi);
 
     // Serial
-    let mut v = global.clone();
+    let mut v = space.ndarray_physical();
+    for (i, vi) in v.iter_mut().enumerate() {
+        *vi = i as f64;
+    }
     let mut vhat = space.ndarray_spectral();
     space.forward_inplace(&v, &mut vhat);
     space.backward_inplace(&vhat, &mut v);

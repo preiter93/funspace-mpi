@@ -175,7 +175,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Physical> + DataMut;
 
     /// Gather data from all processors (x-pencil distributed) onto root
-    fn gather_from_x_pencil_phys<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn gather_from_x_pencil_phys<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; N]>>)
+    where
+        S1: Data<Elem = <Self as BaseSpace<A, N>>::Physical>;
+
+    /// Gather data from all processors (x-pencil distributed) onto root
+    ///
+    /// # Info
+    /// Call this routine from root
+    fn gather_from_x_pencil_phys_root<S1, S2>(
         &self,
         pencil_data: &ArrayBase<S1, Dim<[usize; N]>>,
         global_data: &mut ArrayBase<S2, Dim<[usize; N]>>,
@@ -184,7 +195,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Physical> + DataMut;
 
     /// Gather data from all processors (y-pencil distributed) onto root
-    fn gather_from_y_pencil_phys<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn gather_from_y_pencil_phys<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; N]>>)
+    where
+        S1: Data<Elem = <Self as BaseSpace<A, N>>::Physical>;
+
+    /// Gather data from all processors (y-pencil distributed) onto root
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn gather_from_y_pencil_phys_root<S1, S2>(
         &self,
         pencil_data: &ArrayBase<S1, Dim<[usize; N]>>,
         global_data: &mut ArrayBase<S2, Dim<[usize; N]>>,
@@ -193,7 +215,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Physical> + DataMut;
 
     /// Gather data from all processors (x-pencil distributed) onto root
-    fn gather_from_x_pencil_spec<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn gather_from_x_pencil_spec<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; N]>>)
+    where
+        S1: Data<Elem = <Self as BaseSpace<A, N>>::Spectral>;
+
+    /// Gather data from all processors (x-pencil distributed) onto root
+    ///
+    /// # Info
+    /// Call this routine from root
+    fn gather_from_x_pencil_spec_root<S1, S2>(
         &self,
         pencil_data: &ArrayBase<S1, Dim<[usize; N]>>,
         global_data: &mut ArrayBase<S2, Dim<[usize; N]>>,
@@ -202,7 +235,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Spectral> + DataMut;
 
     /// Gather data from all processors (x-pencil distributed) onto root
-    fn gather_from_y_pencil_spec<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn gather_from_y_pencil_spec<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; N]>>)
+    where
+        S1: Data<Elem = <Self as BaseSpace<A, N>>::Spectral>;
+
+    /// Gather data from all processors (x-pencil distributed) onto root
+    ///
+    /// # Info
+    /// Call this routine from root
+    fn gather_from_y_pencil_spec_root<S1, S2>(
         &self,
         pencil_data: &ArrayBase<S1, Dim<[usize; N]>>,
         global_data: &mut ArrayBase<S2, Dim<[usize; N]>>,
@@ -250,7 +294,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Spectral> + DataMut;
 
     /// Scatter data from root to all processors (x-pencil distributed)
-    fn scatter_to_x_pencil_phys<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn scatter_to_x_pencil_phys<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>)
+    where
+        S2: Data<Elem = <Self as BaseSpace<A, N>>::Physical> + DataMut;
+
+    /// Scatter data from root to all processors (x-pencil distributed)
+    ///
+    /// # Info
+    /// Call this routine from root
+    fn scatter_to_x_pencil_phys_root<S1, S2>(
         &self,
         global_data: &ArrayBase<S1, Dim<[usize; N]>>,
         pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>,
@@ -259,7 +314,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Physical> + DataMut;
 
     /// Scatter data from root to all processors (y-pencil distributed)
-    fn scatter_to_y_pencil_phys<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn scatter_to_y_pencil_phys<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>)
+    where
+        S2: Data<Elem = <Self as BaseSpace<A, N>>::Physical> + DataMut;
+
+    /// Scatter data from root to all processors (y-pencil distributed)
+    ///
+    /// # Info
+    /// Call this routine from root
+    fn scatter_to_y_pencil_phys_root<S1, S2>(
         &self,
         global_data: &ArrayBase<S1, Dim<[usize; N]>>,
         pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>,
@@ -268,7 +334,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Physical> + DataMut;
 
     /// Scatter data from root to all processors (x-pencil distributed)
-    fn scatter_to_x_pencil_spec<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn scatter_to_x_pencil_spec<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>)
+    where
+        S2: Data<Elem = <Self as BaseSpace<A, N>>::Spectral> + DataMut;
+
+    /// Scatter data from root to all processors (x-pencil distributed)
+    ///
+    /// # Info
+    /// Call this routine from root
+    fn scatter_to_x_pencil_spec_root<S1, S2>(
         &self,
         global_data: &ArrayBase<S1, Dim<[usize; N]>>,
         pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>,
@@ -277,7 +354,18 @@ where
         S2: Data<Elem = <Self as BaseSpace<A, N>>::Spectral> + DataMut;
 
     /// Scatter data from root to all processors (y-pencil distributed)
-    fn scatter_to_y_pencil_spec<S1, S2>(
+    ///
+    /// # Info
+    /// Call this routine from non-root
+    fn scatter_to_y_pencil_spec<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>)
+    where
+        S2: Data<Elem = <Self as BaseSpace<A, N>>::Spectral> + DataMut;
+
+    /// Scatter data from root to all processors (y-pencil distributed)
+    ///
+    /// # Info
+    /// Call this routine from root
+    fn scatter_to_y_pencil_spec_root<S1, S2>(
         &self,
         global_data: &ArrayBase<S1, Dim<[usize; N]>>,
         pencil_data: &mut ArrayBase<S2, Dim<[usize; N]>>,

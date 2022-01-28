@@ -1,6 +1,6 @@
 [package]
 name = "funspace"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["preiter"]
 edition = "2018"
 description = "N-dimensional function spaces and transforms"

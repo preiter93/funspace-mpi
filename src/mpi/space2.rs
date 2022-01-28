@@ -679,7 +679,16 @@ macro_rules! impl_space2_mpi {
                 self.base1.backward_inplace(&buffer_ypen, output, 1)
             }
 
-            fn gather_from_x_pencil_phys<S1, S2>(
+            fn gather_from_x_pencil_phys<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>)
+            where
+                S1: Data<Elem = Self::Physical>,
+            {
+                let shape = self.shape_physical();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.gather_x(pencil_data);
+            }
+
+            fn gather_from_x_pencil_phys_root<S1, S2>(
                 &self,
                 pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 global_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -689,10 +698,19 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_physical();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.gather_x(pencil_data, global_data);
+                dcp.gather_x_inplace_root(pencil_data, global_data);
             }
 
-            fn gather_from_y_pencil_phys<S1, S2>(
+            fn gather_from_y_pencil_phys<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>)
+            where
+                S1: Data<Elem = Self::Physical>,
+            {
+                let shape = self.shape_physical();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.gather_y(pencil_data);
+            }
+
+            fn gather_from_y_pencil_phys_root<S1, S2>(
                 &self,
                 pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 global_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -702,10 +720,19 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_physical();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.gather_y(pencil_data, global_data);
+                dcp.gather_y_inplace_root(pencil_data, global_data);
             }
 
-            fn gather_from_x_pencil_spec<S1, S2>(
+            fn gather_from_x_pencil_spec<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>)
+            where
+                S1: Data<Elem = Self::Spectral>,
+            {
+                let shape = self.shape_spectral();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.gather_x(pencil_data);
+            }
+
+            fn gather_from_x_pencil_spec_root<S1, S2>(
                 &self,
                 pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 global_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -715,10 +742,19 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_spectral();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.gather_x(pencil_data, global_data);
+                dcp.gather_x_inplace_root(pencil_data, global_data);
             }
 
-            fn gather_from_y_pencil_spec<S1, S2>(
+            fn gather_from_y_pencil_spec<S1>(&self, pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>)
+            where
+                S1: Data<Elem = Self::Spectral>,
+            {
+                let shape = self.shape_spectral();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.gather_y(pencil_data);
+            }
+
+            fn gather_from_y_pencil_spec_root<S1, S2>(
                 &self,
                 pencil_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 global_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -728,7 +764,7 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_spectral();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.gather_y(pencil_data, global_data);
+                dcp.gather_y_inplace_root(pencil_data, global_data);
             }
 
             fn all_gather_from_x_pencil_phys<S1, S2>(
@@ -783,7 +819,16 @@ macro_rules! impl_space2_mpi {
                 dcp.all_gather_y(pencil_data, global_data);
             }
 
-            fn scatter_to_x_pencil_phys<S1, S2>(
+            fn scatter_to_x_pencil_phys<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>)
+            where
+                S2: Data<Elem = Self::Physical> + DataMut,
+            {
+                let shape = self.shape_physical();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.scatter_x_inplace(pencil_data);
+            }
+
+            fn scatter_to_x_pencil_phys_root<S1, S2>(
                 &self,
                 global_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -793,10 +838,19 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_physical();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.scatter_x(global_data, pencil_data);
+                dcp.scatter_x_inplace_root(global_data, pencil_data);
             }
 
-            fn scatter_to_y_pencil_phys<S1, S2>(
+            fn scatter_to_y_pencil_phys<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>)
+            where
+                S2: Data<Elem = Self::Physical> + DataMut,
+            {
+                let shape = self.shape_physical();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.scatter_y_inplace(pencil_data);
+            }
+
+            fn scatter_to_y_pencil_phys_root<S1, S2>(
                 &self,
                 global_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -806,10 +860,19 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_physical();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.scatter_y(global_data, pencil_data);
+                dcp.scatter_y_inplace_root(global_data, pencil_data);
             }
 
-            fn scatter_to_x_pencil_spec<S1, S2>(
+            fn scatter_to_x_pencil_spec<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>)
+            where
+                S2: Data<Elem = Self::Spectral> + DataMut,
+            {
+                let shape = self.shape_spectral();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.scatter_x_inplace(pencil_data);
+            }
+
+            fn scatter_to_x_pencil_spec_root<S1, S2>(
                 &self,
                 global_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -819,10 +882,19 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_spectral();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.scatter_x(global_data, pencil_data);
+                dcp.scatter_x_inplace_root(global_data, pencil_data);
             }
 
-            fn scatter_to_y_pencil_spec<S1, S2>(
+            fn scatter_to_y_pencil_spec<S2>(&self, pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>)
+            where
+                S2: Data<Elem = Self::Spectral> + DataMut,
+            {
+                let shape = self.shape_spectral();
+                let dcp = self.get_decomp_from_global_shape(&shape);
+                dcp.scatter_y_inplace(pencil_data);
+            }
+
+            fn scatter_to_y_pencil_spec_root<S1, S2>(
                 &self,
                 global_data: &ArrayBase<S1, Dim<[usize; 2]>>,
                 pencil_data: &mut ArrayBase<S2, Dim<[usize; 2]>>,
@@ -832,7 +904,7 @@ macro_rules! impl_space2_mpi {
             {
                 let shape = self.shape_spectral();
                 let dcp = self.get_decomp_from_global_shape(&shape);
-                dcp.scatter_y(global_data, pencil_data);
+                dcp.scatter_y_inplace_root(global_data, pencil_data);
             }
 
             fn transpose_x_to_y_phys<S1, S2>(
