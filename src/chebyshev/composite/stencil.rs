@@ -12,7 +12,6 @@ use crate::{FloatNum, Scalar};
 use ndarray::prelude::*;
 use std::ops::{Add, Div, Mul, Sub};
 
-#[allow(clippy::pub_enum_variant_names)]
 #[enum_dispatch(Stencil<A>)]
 #[derive(Clone)]
 pub enum StencilChebyshev<A: FloatNum> {

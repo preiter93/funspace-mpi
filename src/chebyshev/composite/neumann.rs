@@ -110,7 +110,6 @@ impl<A: FloatNum> Stencil<A> for StencilChebNeumann<A> {
             + Div<A, Output = T>
             + Sub<A, Output = T>,
     {
-        orthonorm_coeff.mapv_inplace(|x| x * T::zero());
         orthonorm_coeff[0] = composite_coeff[0] * self.diag[0];
         orthonorm_coeff[1] = composite_coeff[1] * self.diag[1];
         for i in 2..self.n - 2 {

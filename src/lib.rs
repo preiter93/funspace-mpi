@@ -1,14 +1,10 @@
 //! # Funspace
 //! <img align="right" src="https://rustacean.net/assets/cuddlyferris.png" width="80">
-//!
 //! Collection of function spaces.
 //!
-//! A function space is composed of elements of basis functions.
-//! Each function in the function space can be represented as a
-//! linear combination of basis functions, represented by real/complex
-//! coefficients (spectral space).
+//! # Bases
 //!
-//! ## Implemented function spaces:
+//! ## Implemented bases:
 //! - `Chebyshev` (Orthogonal), see [`chebyshev()`]
 //! - `ChebDirichlet` (Composite), see [`cheb_dirichlet()`]
 //! - `ChebNeumann` (Composite), see [`cheb_neumann()`]
@@ -18,8 +14,8 @@
 //!
 //! ## Transform
 //! A transformation describes a change from physical space to functional space.
-//! For example, a Fourier transform describes a transformation of a function
-//! on a regular grid into coefficients of sine/cosine polynomials.
+//! For example, a Fourier transform transforms a function
+//! on a equispaced grid into coefficients of sine/cosine polynomials.
 //! This is analogous to other function spaces. The transformations are
 //! implemented by the [`Transform`] trait.
 //!
@@ -75,24 +71,24 @@
 //! ## Composite Bases
 //! Bases such as those of Fourier polynomials or Chebyshev polynomials are
 //! are considered as orthogonal bases, i.e. the dot product of every single
-//! polynomial with any other polynomial in its set vanishes. In these cases
+//! polynomial with any other polynomial in its set vanishes. In this cases
 //! the mass matrix is a diagonal matrix.
 //! However, other function spaces can be constructed by a linear combination
 //! of the orthogonal basis functions. In this way, bases can be constructed
-//! construct bases that satisfy certain boundary conditions such as Dirichlet
+//! that satisfy certain boundary conditions such as Dirichlet
 //! (zero at the ends) or Neumann (zero derivative at the ends).
-//! This is useful for solving partial differential equations. If they are
-//! expressed in these composite function spaces, the boundary condition
-//! is automatically satisfied. This is known as the *Galerkin* method.
+//! This is useful for solving partial differential equations (see *Galerkin* method),
+//! since calculation in these bases automatically satisfy the boundary conditions.
 //!
 //! To switch from its composite form to the orthogonal form, each base implements
 //! a [`FromOrtho`] trait, which defines the transform `to_ortho` and `from_ortho`.
 //! If the base is already orthogonal, the input will be returned, otherwise it
-//! is transformed from the composite space to the orthogonal space.
+//! is transformed from the composite space to the orthogonal space (to_ortho`), or vice versa
+//! (from_ortho`).
 //! Note that the size of the composite space is usually
 //! less than its orthogonal counterpart. In other words, the composite space is
-//! usually a lower dimensional subspace of the orthogonal space. Therefore the output
-//! array must not maintain the same shape.
+//! usually a lower dimensional subspace of the orthogonal space. Therefore the number of coefficients
+//! between orthogonal and composite space is different.
 //!
 //! ### Example
 //! Transform composite space `cheb_dirichlet` to its orthogonal counterpart
@@ -139,11 +135,11 @@
 //! println!("cheb_dirichlet: {:?}", cd_vhat_ortho);
 //! ```
 //!
-//! ## Multidimensional Spaces
-//! A collection of bases forms a function space on which one can in turn define operations
-//! along a specfic dimension (= axis). However, to transform a field from the physical space
-//! into the spectral space, special attention must be paid to how the transformations are
-//! concatenated  in a multidimensional space. Not all combinations are possible.
+//! ## Function Spaces
+//! A collection of *n* bases forms a *n*-dimensional function space on which one can in turn
+//! define operations along a specfic dimension (= axis). However, to transform a field from
+//! the physical space into the spectral space, special attention must be paid to how the
+//! transformations are concatenated  in a multidimensional space. Not all combinations are possible.
 //! For example, `cheb_dirichlet` is a real-to-real transform,
 //! while `fourier_r2c` defines a real-to-complex transform.
 //! Thus, for a given real-valued physical field, the Chebyshev transform must precede
@@ -193,6 +189,9 @@
 //! ```ignore
 //! cargo mpirun --np 2 --example space_mpi --features="mpi"
 //! ```
+//!
+//! # Versions
+//! - v0.3.2: Update ``ǹdrustfft`` to 0.3
 #![allow(clippy::just_underscores_and_digits)]
 #![allow(clippy::doc_markdown)]
 #![allow(clippy::cast_precision_loss)]

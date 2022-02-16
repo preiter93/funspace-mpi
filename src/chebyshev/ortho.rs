@@ -150,9 +150,11 @@ impl<A: FloatNum> Chebyshev<A> {
     /// Output:
     /// ndarray (n x n) matrix, acts in spectral space
     fn _pinv(n: usize, deriv: usize) -> Array2<A> {
-        if deriv > 2 {
-            panic!("pinv does only support deriv's 1 & 2, got {}", deriv);
-        }
+        assert!(
+            !(deriv > 2),
+            "pinv does only support deriv's 1 & 2, got {}",
+            deriv
+        );
         let mut pinv = Array2::<f64>::zeros([n, n]);
         if deriv == 1 {
             pinv[[1, 0]] = 1.;

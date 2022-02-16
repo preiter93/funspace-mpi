@@ -27,7 +27,6 @@ pub fn tdma<S1, S2, T1, T2>(
         + Sub<T1, Output = T2>,
 {
     let n = d.len();
-    let mut x = Array1::<T2>::zeros(n);
     let mut w = Array1::<T1>::zeros(n - 2);
     let mut g = Array1::<T2>::zeros(n);
 
@@ -47,13 +46,11 @@ pub fn tdma<S1, S2, T1, T2>(
     }
 
     // Back substitution
-    x[n - 1] = g[n - 1];
-    x[n - 2] = g[n - 2];
+    d[n - 1] = g[n - 1];
+    d[n - 2] = g[n - 2];
     for i in (1..n - 1).rev() {
-        x[i - 1] = g[i - 1] - x[i + 1] * w[i - 1];
+        d[i - 1] = g[i - 1] - d[i + 1] * w[i - 1];
     }
-
-    d.assign(&x);
 }
 
 /// Pentadiagonal matrix solver

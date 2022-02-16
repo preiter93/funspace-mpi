@@ -87,9 +87,12 @@ where
 {
     let dif = A::from_f64(1e-3).unwrap();
     for (a, b) in expected.iter().zip(result.iter()) {
-        if (*a - *b).abs() > dif {
-            panic!("Large difference of values, got {} expected {}.", b, a);
-        }
+        assert!(
+            ((*a - *b).abs() < dif),
+            "Large difference of values, got {} expected {}.",
+            b,
+            a
+        );
     }
 }
 
@@ -105,8 +108,11 @@ where
 {
     let dif = A::from_f64(1e-3).unwrap();
     for (a, b) in expected.iter().zip(result.iter()) {
-        if (a.re - b.re).abs() > dif || (a.im - b.im).abs() > dif {
-            panic!("Large difference of values, got {} expected {}.", b, a);
-        }
+        assert!(
+            ((a.re - b.re).abs() < dif || (a.im - b.im).abs() < dif),
+            "Large difference of values, got {} expected {}.",
+            b,
+            a
+        );
     }
 }

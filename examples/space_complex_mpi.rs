@@ -1,12 +1,10 @@
 //! # Use
 //! cargo mpirun --np 2 --example space_complex_mpi --features="mpi"
-use funspace::cheb_dirichlet;
-use funspace::fourier_r2c;
-use funspace::mpi::initialize;
-use funspace::mpi::BaseSpaceMpi;
-use funspace::mpi::Space2;
-use funspace::BaseSpace;
-
+#[cfg(feature = "mpi")]
+use funspace::mpi::{initialize, BaseSpaceMpi, Space2};
+#[cfg(feature = "mpi")]
+use funspace::{cheb_dirichlet, fourier_r2c, BaseSpace};
+#[cfg(feature = "mpi")]
 fn main() {
     let (nx, ny) = (32, 10);
     let universe = initialize().unwrap();
@@ -54,4 +52,9 @@ fn main() {
     // just test to ortho / from ortho transforms
     let ortho = space.to_ortho_mpi(&x_pencil);
     let _ = space.from_ortho_mpi(&ortho);
+}
+
+#[cfg(not(feature = "mpi"))]
+fn main() {
+    println!("Test requires mpi feature");
 }
