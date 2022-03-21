@@ -220,6 +220,7 @@ pub use crate::traits::FromOrthoPar;
 pub use crate::traits::LaplacianInverse;
 pub use crate::traits::Transform;
 pub use crate::traits::TransformPar;
+pub use crate::traits::ExplicitOperators;
 use chebyshev::Chebyshev;
 use chebyshev::CompositeChebyshev;
 use fourier::{FourierC2c, FourierR2c};
