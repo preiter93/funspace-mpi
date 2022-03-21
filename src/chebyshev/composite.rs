@@ -7,6 +7,7 @@ mod neumann_bc;
 mod stencil;
 use super::ortho::Chebyshev;
 use crate::enums::BaseKind;
+use crate::traits::BaseOperators;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
 use crate::traits::Differentiate;
@@ -624,6 +625,21 @@ macro_rules! impl_differentiate_composite_chebyshev {
 }
 impl_differentiate_composite_chebyshev!(A);
 impl_differentiate_composite_chebyshev!(Complex<A>);
+
+impl<A: FloatNum> BaseOperators for CompositeChebyshev<A> {
+    type Spectral = A;
+    /// Return explicit differentiation operator
+    ///
+    /// This function might be useful to build the operator
+    /// matrices explicitly.
+    fn diff_op(&self, deriv: usize) -> Array2<Self::Spectral> {
+        self.ortho.diff_op(deriv)
+    }
+
+    fn stencil(&self) -> Option<Array2<Self::Spectral>> {
+        Some(self.stencil.to_array())
+    }
+}
 
 impl<A: FloatNum> LaplacianInverse<A> for CompositeChebyshev<A> {
     /// See [`Chebyshev::laplace`]

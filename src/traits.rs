@@ -59,6 +59,21 @@ pub trait LaplacianInverse<T> {
     fn laplace_inv_eye(&self) -> Array2<T>;
 }
 
+pub trait BaseOperators {
+    /// Scalar type in spectral space (after transfrom)
+    type Spectral;
+    /// Differantiation operator $ D $
+    fn diff_op(&self, deriv: usize) -> Array2<Self::Spectral>;
+    /// Stencil matrix $ S $
+    /// ```text
+    /// u = S v
+    /// ```
+    /// where *u*: Coefficients in orthogonal space, and
+    /// *v*: Coefficients in projected space. Returns
+    /// None if space is already orthogonal
+    fn stencil(&self) -> Option<Array2<Self::Spectral>>;
+}
+
 /// Transform from physical to spectral space and vice versa.
 ///
 /// The associated types *Physical* and *Spectral* refer
@@ -66,9 +81,9 @@ pub trait LaplacianInverse<T> {
 /// For example, a fourier transforms from real-to-complex,
 /// while chebyshev from real-to-real.
 pub trait Transform {
-    // /// Scalar type in physical space (before transform)
+    /// Scalar type in physical space (before transform)
     type Physical;
-    // /// Scalar type in spectral space (after transfrom)
+    /// Scalar type in spectral space (after transfrom)
     type Spectral;
     /// Transform physical -> spectral space along axis
     ///

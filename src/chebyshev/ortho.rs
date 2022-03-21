@@ -1,5 +1,6 @@
 //! # Orthogonal chebyshev space
 use crate::enums::BaseKind;
+use crate::traits::BaseOperators;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
 use crate::traits::Differentiate;
@@ -494,6 +495,21 @@ macro_rules! impl_differentiate_chebyshev {
 impl_differentiate_chebyshev!(A);
 impl_differentiate_chebyshev!(Complex<A>);
 
+impl<A: FloatNum> BaseOperators for Chebyshev<A> {
+    type Spectral = A;
+    /// Return explicit differentiation operator
+    ///
+    /// This function might be useful to build the operator
+    /// matrices explicitly.
+    fn diff_op(&self, deriv: usize) -> Array2<Self::Spectral> {
+        Self::_dmat(self.n, deriv)
+    }
+
+    fn stencil(&self) -> Option<Array2<Self::Spectral>> {
+        None
+    }
+}
+
 impl<A: FloatNum> LaplacianInverse<A> for Chebyshev<A> {
     /// Laplacian
     fn laplace(&self) -> Array2<A> {
@@ -683,5 +699,31 @@ mod test {
         let input = array![1., 2., 3., 4.];
         let output = cheby.forward(&input, 0);
         approx_eq(&output, &array![2.5, 1.33333333, 0., 0.16666667]);
+    }
+
+    #[test]
+    fn test_chebyshev_differentiation_operator() {
+        let cheby = Chebyshev::new(5);
+        let diff_op: Array2<f64> = cheby.diff_op(1);
+        let diff_op_py: Array2<f64> = array![
+            [0., 1., 0., 3., 0.],
+            [0., 0., 4., 0., 8.],
+            [0., 0., 0., 6., 0.],
+            [0., 0., 0., 0., 8.],
+            [0., 0., 0., 0., 0.],
+        ];
+        approx_eq(&diff_op, &diff_op_py);
+
+        // Higher order derivative
+        let diff_op2: Array2<f64> = cheby.diff_op(2);
+        approx_eq(&diff_op2, &diff_op.dot(&diff_op));
+
+        // Compare with implicit differentiation
+        let mut data = Array1::<f64>::zeros(5);
+        for (i, v) in data.iter_mut().enumerate() {
+            *v = i as f64;
+        }
+        let data_deriv = cheby.differentiate(&data, 1, 0);
+        approx_eq(&data_deriv, &diff_op.dot(&data));
     }
 }

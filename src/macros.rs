@@ -308,3 +308,25 @@ macro_rules! impl_from_ortho_trait_for_base {
         }
     };
 }
+
+/// Implement transform trait across Base enums
+macro_rules! impl_baseoperator_trait_for_base {
+    ($base: ident, $a: ty, $b: ty, $($var:ident),*) => {
+
+            impl<A: FloatNum> BaseOperators for $base<A> {
+                type Spectral = $b;
+
+                fn diff_op(&self, deriv: usize) -> Array2<Self::Spectral> {
+                    match self {
+                        $(Self::$var(ref b) => b.diff_op(deriv),)*
+                    }
+                }
+
+                fn stencil(&self) -> Option<Array2<Self::Spectral>> {
+                    match self {
+                        $(Self::$var(ref b) => b.stencil(),)*
+                    }
+                }
+            }
+        };
+    }

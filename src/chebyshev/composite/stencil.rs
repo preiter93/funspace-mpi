@@ -14,6 +14,7 @@ use std::ops::{Add, Div, Mul, Sub};
 
 #[enum_dispatch(Stencil<A>)]
 #[derive(Clone)]
+#[allow(clippy::enum_variant_names)]
 pub enum StencilChebyshev<A: FloatNum> {
     StencilChebDirichlet(StencilChebDirichlet<A>),
     StencilChebNeumann(StencilChebNeumann<A>),

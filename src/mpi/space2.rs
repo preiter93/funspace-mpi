@@ -8,6 +8,7 @@ use super::Equivalence;
 use super::Universe;
 use crate::enums::BaseKind;
 use crate::space_traits::BaseSpace;
+use crate::traits::BaseOperators;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
 use crate::traits::Differentiate;
@@ -131,6 +132,22 @@ macro_rules! impl_space2 {
                     self.base0.mass()
                 } else {
                     self.base1.mass()
+                }
+            }
+
+            fn diff_op(&self, deriv: usize, axis: usize) -> Array2<Self::Spectral> {
+                if axis == 0 {
+                    self.base0.diff_op(deriv)
+                } else {
+                    self.base1.diff_op(deriv)
+                }
+            }
+
+            fn stencil(&self, axis: usize) -> Option<Array2<Self::Spectral>> {
+                if axis == 0 {
+                    self.base0.stencil()
+                } else {
+                    self.base1.stencil()
                 }
             }
 

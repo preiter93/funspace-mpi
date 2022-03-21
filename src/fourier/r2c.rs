@@ -8,6 +8,7 @@
 #![allow(clippy::module_name_repetitions)]
 use super::FourierC2c;
 use crate::enums::BaseKind;
+use crate::traits::BaseOperators;
 use crate::traits::BaseSize;
 use crate::traits::Basics;
 use crate::traits::Differentiate;
@@ -366,6 +367,26 @@ impl<A: FloatNum> DifferentiatePar<Complex<A>> for FourierR2c<A> {
     }
 }
 
+impl<A: FloatNum> BaseOperators for FourierR2c<A> {
+    type Spectral = Complex<A>;
+    /// Return explicit differentiation operator
+    ///
+    /// This function might be useful to build the operator
+    /// matrices explicitly.
+    #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
+    fn diff_op(&self, deriv: usize) -> Array2<Self::Spectral> {
+        let mut diff_mat = Array2::<Complex<A>>::zeros((self.m, self.m));
+        for (l, k) in diff_mat.diag_mut().iter_mut().zip(self.k.iter()) {
+            *l = Complex::new(A::zero(), k.im).powi(deriv as i32);
+        }
+        diff_mat
+    }
+
+    fn stencil(&self) -> Option<Array2<Self::Spectral>> {
+        None
+    }
+}
+
 impl<A: FloatNum> LaplacianInverse<A> for FourierR2c<A> {
     /// Laplacian ( = |k^2| ) diagonal matrix
     fn laplace(&self) -> Array2<A> {
@@ -486,5 +507,30 @@ impl<A: FloatNum> FromOrthoPar<Complex<A>> for FourierR2c<A> {
         D: Dimension,
     {
         output.assign(input);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::utils::approx_eq_complex;
+    use ndarray::{Array1, Array2};
+
+    #[test]
+    fn test_fourier_r2c_differentiation_operator() {
+        let fourier = FourierR2c::new(5);
+        let diff_op: Array2<Complex<f64>> = fourier.diff_op(1);
+
+        // Higher order derivative
+        let diff_op2: Array2<Complex<f64>> = fourier.diff_op(2);
+        approx_eq_complex(&diff_op2, &diff_op.dot(&diff_op));
+
+        // Compare with implicit differentiation
+        let mut data = Array1::<Complex<f64>>::zeros(3);
+        for (i, v) in data.iter_mut().enumerate() {
+            *v = Complex::new(i as f64, i as f64);
+        }
+        let data_deriv = fourier.differentiate(&data, 1, 0);
+        approx_eq_complex(&data_deriv, &diff_op.dot(&data));
     }
 }

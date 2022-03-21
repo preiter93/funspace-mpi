@@ -9,6 +9,7 @@ use crate::chebyshev::Chebyshev;
 use crate::chebyshev::CompositeChebyshev;
 use crate::fourier::FourierC2c;
 use crate::fourier::FourierR2c;
+use crate::traits::BaseOperators;
 use crate::traits::Differentiate;
 use crate::traits::DifferentiatePar;
 use crate::traits::FromOrtho;
@@ -116,13 +117,16 @@ impl_differentiate_trait_for_base!(BaseR2r, A, Chebyshev, CompositeChebyshev);
 impl_differentiate_trait_for_base!(BaseR2r, Complex<A>, Chebyshev, CompositeChebyshev);
 impl_from_ortho_trait_for_base!(BaseR2r, A, Chebyshev, CompositeChebyshev);
 impl_from_ortho_trait_for_base!(BaseR2r, Complex<A>, Chebyshev, CompositeChebyshev);
+impl_baseoperator_trait_for_base!(BaseR2r, A, A, Chebyshev, CompositeChebyshev);
 
 // Implement traits on real-to-complex
 impl_transform_trait_for_base!(BaseR2c, A, Complex<A>, FourierR2c);
 impl_differentiate_trait_for_base!(BaseR2c, Complex<A>, FourierR2c);
 impl_from_ortho_trait_for_base!(BaseR2c, Complex<A>, FourierR2c);
+impl_baseoperator_trait_for_base!(BaseR2c, A, Complex<A>, FourierR2c);
 
 // Implement traits on complex-to-complex
 impl_transform_trait_for_base!(BaseC2c, Complex<A>, Complex<A>, FourierC2c);
 impl_differentiate_trait_for_base!(BaseC2c, Complex<A>, FourierC2c);
 impl_from_ortho_trait_for_base!(BaseC2c, Complex<A>, FourierC2c);
+impl_baseoperator_trait_for_base!(BaseC2c, Complex<A>, Complex<A>, FourierC2c);
